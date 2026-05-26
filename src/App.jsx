@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import CanvasBackground from './CanvasBackground';
+import { infoData, shopData, pressData, newsData } from './data';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -34,10 +35,12 @@ export default function App() {
 
   return (
     <section className="scene">
-      <CanvasBackground />
+      <CanvasBackground currentPage={currentPage} selectedProduct={selectedProduct} />
+      
       <div className="scene__dots"></div>
 
       <div className={`scene__card ${currentPage !== 'home' ? 'is-inner' : ''}`}>
+        
         <nav className="card__nav">
           <a href="#" className={currentPage === 'about' ? 'active' : ''} onClick={navTo('about')}>about</a>
           <a href="#" className={currentPage === 'shop' ? 'active' : ''} onClick={navTo('shop')}>shop</a>
@@ -54,15 +57,23 @@ export default function App() {
 
         <div className="card__ticker">
           <div className="ticker__track">
-            <span className="ticker__item">21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz</span>
-            <span className="ticker__item">21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz</span>
-            <span className="ticker__item">21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz</span>
+            <span className="ticker__item">
+              21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz •&nbsp;
+            </span>
+            <span className="ticker__item">
+              21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz •&nbsp;
+            </span>
           </div>
         </div>
+
       </div>
     </section>
   );
 }
+
+/* ============================================================
+   PAGE COMPONENTS (Powered by data.js)
+============================================================ */
 
 function Home() {
   return (
@@ -75,10 +86,11 @@ function Home() {
 function About() {
   return (
     <div className="about">
-      <p><span>21 streetz </span>is a music collective emerging from Vadodara,
-      which provides audio and visual services<br /><br />
-      <span>members</span><br />
-      bhadrankar, jay, vastavik, groovy, tapan, yuvakmandal</p>
+      <p>
+        <span>21 streetz </span>{infoData.about.description}<br /><br />
+        <span>members</span><br />
+        {infoData.about.members.join(', ')}
+      </p>
     </div>
   );
 }
@@ -87,15 +99,16 @@ function Shop({ onProductClick }) {
   return (
     <div className="shop">
       <div className="products">
-        {['shirt_001', 'shirt_002', 'shirt_003'].map(id => (
-          <div className="product" key={id} onClick={() => onProductClick(id)}>
+        {/* Mapping through shopData dynamically */}
+        {shopData.map(product => (
+          <div className="product" key={product.id} onClick={() => onProductClick(product.id)}>
             <div className="product__img">
-              <img src="/img/shirt3.png" alt={id} />
+              <img src={product.image} alt={product.name} />
             </div>
             <div className="product__info">
               <div className="left">
-                <p>{id.replace('_', ' ').toUpperCase()}</p>
-                <span>₹1999</span>
+                <p>{product.name}</p>
+                <span>{product.price}</span>
               </div>
               <div className="right"><img src="/img/plus.png" alt="add" /></div>
             </div>
@@ -111,19 +124,26 @@ function Press() {
   return (
     <div className="press">
       <div className="press-products">
-        <div className="press-product">
-          <div className="press-product__img"></div>
-          <div className="press-product__info">
-            <div className="press-left">
-              <p>7 questions with bhadrankar</p>
-              <span>offthedome</span>
+        {/* Mapping through pressData dynamically */}
+        {pressData.map(item => (
+          <div className="press-product" key={item.id}>
+            {/* Using inline style for dynamic background image */}
+            <div 
+              className="press-product__img" 
+              style={{ backgroundImage: `url(${item.image})` }}
+            ></div>
+            <div className="press-product__info">
+              <div className="press-left">
+                <p>{item.title}</p>
+                <span>{item.source}</span>
+              </div>
+              <div className="press-right">
+                <a href={item.link}><img src="/img/cross_arrow.png" alt="link" /></a>
+              </div>
             </div>
-            <div className="press-right">
-              <img src="/img/cross_arrow.png" alt="link" />
-            </div>
+            <div className="press-product__line"></div>
           </div>
-          <div className="press-product__line"></div>
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -133,7 +153,9 @@ function News() {
   return (
     <div className="news">
       <h2>NEWS</h2>
-      <p>Latest updates</p>
+      {newsData.map(news => (
+        <p key={news.id}>{news.headline}</p>
+      ))}
     </div>
   );
 }
@@ -141,14 +163,20 @@ function News() {
 function Media() {
   return (
     <div className="media">
-      <p>reach us out at for any queries related to products or for any audio visual services<br /><br />
-      21streetz.com<br />
-      21streetz@gmail.com</p>
+      <p>
+        {infoData.contact.message}<br /><br />
+        {infoData.contact.website}<br />
+        {infoData.contact.email}
+      </p>
     </div>
   );
 }
 
 function ProductDetail({ id, onBack }) {
+  const product = shopData.find(p => p.id === id);
+
+  if (!product) return <div>Product not found</div>;
+
   return (
     <div className="productDetail">
       <div className="pd__top">
@@ -157,11 +185,11 @@ function ProductDetail({ id, onBack }) {
       </div>
       <div className="pd__content">
         <div className="pd__left">
-          <img src="/img/shirt3.png" alt="product" />
+          <img src={product.image} alt={product.name} />
         </div>
         <div className="pd__right">
-          <h3>shop/{id}</h3>
-          <p>size &nbsp; S M L XL</p>
+          <h3>shop/{product.name.toLowerCase().replace(' ', '_')}</h3>
+          <p>size &nbsp; {product.sizes ? product.sizes.join(' ') : 'S M L XL'}</p>
           <div className="pd__plus">+</div>
           <div className="pd__accordion">
             <div className="acc__item">
