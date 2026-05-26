@@ -47,7 +47,9 @@ export default function App() {
         </nav>
 
         <div className="card__body" id="content">
-          {renderContent()}
+          <div key={`${currentPage}-${selectedProduct || 'none'}`} className="classy-transition">
+            {renderContent()}
+          </div>
         </div>
 
         <div className="card__ticker">

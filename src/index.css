@@ -481,3 +481,23 @@ body {
 .acc__item img {
   width: 12px;
 }
+
+/* ================= CLASSY DIGITAL FOCUS TRANSITION ================= */
+.classy-transition {
+  height: 100%;
+  /* The cubic-bezier creates a premium "snappy but smooth" easing */
+  animation: classy-focus 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes classy-focus {
+  0% { 
+    opacity: 0; 
+    transform: translateY(20px); 
+    filter: blur(8px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0px); 
+    filter: blur(0px); 
+  }
+}
