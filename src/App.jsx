@@ -58,10 +58,7 @@ export default function App() {
         <div className="card__ticker">
           <div className="ticker__track">
             <span className="ticker__item">
-              21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz •&nbsp;
-            </span>
-            <span className="ticker__item">
-              21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz •&nbsp;
+              21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz •
             </span>
           </div>
         </div>
