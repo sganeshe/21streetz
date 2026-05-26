@@ -1,0 +1,458 @@
+:root {
+  --red: rgba(213, 0, 0, 1);
+  --black: #0a0a0a;
+  --white: #f5f5f5;
+  --card-w: 820px;
+  --card-h: 560px;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-mono);
+  overflow: hidden;
+}
+
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/*main bg*/
+/* .scene__bg {
+  position: absolute;
+  inset: 0;
+  /* background: url('/img/main-bg.png') center/cover no-repeat;
+  z-index: 0;
+} */
+
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+/* 🔥 TEXTURE LAYER */
+.scene__card {
+  position: relative;
+  z-index: 2;
+  width: clamp(320px, 60vw, 90vw);
+  aspect-ratio: 1200 / 800;
+  display: flex;
+  flex-direction: column;
+
+  /* 🔥 TEXTURE + COLOR */
+  background:
+    /* url('/img/cutout-frame.jpg') center/cover no-repeat, */
+    var(--red);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.8);
+
+  overflow: hidden;
+  background-blend-mode: screen;
+}
+
+/*scene card cutout frame*/
+.scene__card::before {
+  content: "";
+  position: absolute;
+  inset: 0px;
+  /* ADJUSTMENT: Set background size to 100% 100% to fit the locked container */
+  background: url('/img/cutout_frame.png') center / 141% 211% no-repeat;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.scene__card.is-inner {
+  background: url(/img/black-bg.png);
+  background-size: cover;
+}
+
+.scene__card.scene__card.is-inner .card__nav a {
+  color: var(--red);
+}
+
+.about,
+.media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 100%;
+  width: 100%;
+  color: var(--red);
+}
+
+.about p,
+.media p {
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: -3%;
+  width: 75%;
+  line-height: 30px;
+  text-align: left;
+}
+
+.about span {
+  font-weight: 500;
+  font-size: 1.6rem;
+  letter-spacing: -3%;
+}
+
+.card__body,
+.card__ticker {
+  position: relative;
+  z-index: 2;
+}
+
+.card__nav {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: -6%;
+  padding: 0 16px;
+}
+
+.card__nav a {
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--black);
+  padding: 6px 14px;
+  transition: 0.2s;
+}
+
+.card__body {
+  flex: 1;
+  overflow: hidden;
+  display: block;
+  /* display: flex;
+  justify-content: center;
+  align-items: center; */
+  padding: 20px;
+  text-align: center;
+}
+
+/*
+============================================================ */
+/* TICKER DEFAULT (HOME)
+============================================================ */
+.card__ticker {
+  height: 28px;
+  overflow: hidden;
+  background-image: url('/img/black-bg.png');
+  background-size: cover;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   INNER PAGE (WHEN NAV CLICKED)
+============================================================ */
+.scene__card.is-inner .card__ticker {
+  background: var(--red);
+  /* solid dark */
+  /* background-image: url('img/cutout-frame.jpg'); */
+  background-blend-mode: screen;
+  color: black;
+}
+
+/* ============================================================ */
+.ticker__track {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker 15s linear infinite;
+}
+
+.ticker__item {
+  letter-spacing: -6%;
+  padding: 0 14px;
+  text-transform: uppercase;
+}
+
+/* ============================================================ */
+@media (max-width: 600px) {
+  .scene__card {
+    width: 95vw;
+    /* ADJUSTMENT: Swap fluid height for a mobile-friendly aspect ratio */
+    aspect-ratio: 3 / 4; 
+  }
+
+  .card__body h2 {
+    font-size: 2.5rem;
+  }
+}
+
+/*home*/
+.home {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ================= SCROLL ================= */
+
+.shop,
+.press {
+  height: 100%;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.shop::-webkit-scrollbar,
+.press::-webkit-scrollbar {
+  display: none;
+}
+
+/* ================= GRID ================= */
+
+.products,
+.press-products {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  padding-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .products,
+  .press-products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ✅ MOBILE */
+@media (max-width: 500px) {
+  .products,
+  .press-products {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================= PRODUCT CARD ================= */
+
+.product,
+.press-product {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= IMAGE ================= */
+
+.product__img,
+.press-product__img {
+  background: var(--red);
+  padding: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.press-product__img {
+  height: 290px;
+  max-width: 100%;
+  background-image: url(img/press.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.product__img img {
+  max-width: 100%;
+  height: 250px;
+}
+
+/* ================= INFO ================= */
+
+.product__info,
+.press-product__info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 10px;
+  margin-top: 5px;
+  color: var(--red);
+}
+
+/* LEFT TEXT */
+
+.product__info .left,
+.press-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.product__info .left p {
+  font-size: 1rem;
+}
+
+.press-left p {
+  font-size: 0.7rem;
+}
+
+.product__info .left span {
+  font-size: 0.8rem;
+}
+
+.press-left span {
+  font-size: 0.6rem;
+}
+
+/* RIGHT */
+
+.product__info .right,
+.press-right {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.product__info .right img,
+.press-right img {
+  height: 1rem;
+  width: 1rem;
+}
+
+/* ================= LINE ================= */
+
+.product__line,
+.press-product__line {
+  height: 0.5rem;
+  background: var(--red);
+  margin-top: 10px;
+}
+
+.productDetail {
+  width: 100%;
+  height: 100%;
+  padding: 25px 30px;
+
+  background-color: var(--red);
+  color: var(--black);
+
+  font-weight: 500;
+  letter-spacing: -9%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= TOP ================= */
+.pd__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 1rem;
+  text-transform: lowercase;
+}
+
+.back {
+  cursor: pointer;
+}
+
+/* ================= MAIN ================= */
+.pd__content {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ================= LEFT ================= */
+.pd__left {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pd__left img {
+  width: 85%;
+  /* 🔥 FIX: prevent overflow */
+  max-width: 420px;
+}
+
+/* ================= RIGHT ================= */
+.pd__right {
+  width: 50%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+/* title */
+.pd__right h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  padding-top: 4rem;
+}
+
+/* size text */
+.pd__right p {
+  font-size: 1.2rem;
+  margin-bottom: 25px;
+}
+
+/* plus */
+.pd__plus {
+  font-size: 34px;
+  margin-bottom: 30px;
+  cursor: pointer;
+}
+
+/* ================= ACCORDION ================= */
+.pd__accordion {
+  margin-top: auto;
+  /* 🔥 KEY FIX → pushes to bottom */
+  width: 100%;
+}
+
+/* row */
+.acc__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid black;
+}
+
+/* remove last border */
+.acc__item:last-child {
+  border-bottom: none;
+}
+
+/* arrow */
+.acc__item img {
+  width: 12px;
+}
