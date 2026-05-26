@@ -13,7 +13,8 @@ export default function CanvasBackground() {
     let grid = [];
     let animationId;
 
-    const mouse = { x: -1000, y: -1000, radius: 100 };
+    // 🔥 Reduced radius for a smaller area of effect
+    const mouse = { x: -1000, y: -1000, radius: 60 };
 
     function initGrid() {
       width = window.innerWidth;
@@ -68,13 +69,16 @@ export default function CanvasBackground() {
         if (dist < mouse.radius) {
           const angle = Math.atan2(dy, dx);
           const power = (mouse.radius - dist) / mouse.radius;
-          forceX -= Math.cos(angle) * power * 8;
-          forceY -= Math.sin(angle) * power * 8;
+          
+          // 🔥 Reduced push force from 8 down to 5 to make the gap smaller
+          forceX -= Math.cos(angle) * power * 5;
+          forceY -= Math.sin(angle) * power * 5;
           interactionBoost = power * 0.5;
         }
 
-        p.x += (p.baseX + forceX - p.x) * 0.25;
-        p.y += (p.baseY + forceY - p.y) * 0.25;
+        // 🔥 Increased return speed (0.3) so dots snap back faster
+        p.x += (p.baseX + forceX - p.x) * 0.3;
+        p.y += (p.baseY + forceY - p.y) * 0.3;
 
         const rawNoise = getNoise(p.baseX, p.baseY, t);
         const intensity = Math.max(0, (rawNoise + 0.3) * 1.5);
@@ -97,7 +101,6 @@ export default function CanvasBackground() {
     initGrid();
     animationId = requestAnimationFrame(animate);
 
-    // Cleanup function to prevent memory leaks in React
     return () => {
       window.removeEventListener('resize', initGrid);
       window.removeEventListener('mousemove', handleMouseMove);

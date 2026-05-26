@@ -2,18 +2,15 @@ import { useState } from 'react';
 import CanvasBackground from './CanvasBackground';
 
 export default function App() {
-  // State to track navigation
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Navigation handler
   const navTo = (page) => (e) => {
     e.preventDefault();
     setCurrentPage(page);
-    setSelectedProduct(null); // Reset product view when changing tabs
+    setSelectedProduct(null); 
   };
 
-  // Determine which component to show based on state
   const renderContent = () => {
     if (selectedProduct) {
       return (
@@ -40,7 +37,6 @@ export default function App() {
       <CanvasBackground />
       <div className="scene__dots"></div>
 
-      {/* Conditionally apply 'is-inner' class if not on home page */}
       <div className={`scene__card ${currentPage !== 'home' ? 'is-inner' : ''}`}>
         <nav className="card__nav">
           <a href="#" className={currentPage === 'about' ? 'active' : ''} onClick={navTo('about')}>about</a>
@@ -56,17 +52,15 @@ export default function App() {
 
         <div className="card__ticker">
           <div className="ticker__track">
-            <span className="ticker__item">21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21stree</span>
+            <span className="ticker__item">21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz</span>
+            <span className="ticker__item">21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz</span>
+            <span className="ticker__item">21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz • 21streetz</span>
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-/* ============================================================
-   PAGE COMPONENTS (You can move these to separate files later)
-============================================================ */
 
 function Home() {
   return (
@@ -88,7 +82,6 @@ function About() {
 }
 
 function Shop({ onProductClick }) {
-  // In a real app, you'd map over an array of products here
   return (
     <div className="shop">
       <div className="products">
@@ -129,7 +122,6 @@ function Press() {
           </div>
           <div className="press-product__line"></div>
         </div>
-        {/* Add your other press items here following the same JSX pattern */}
       </div>
     </div>
   );
