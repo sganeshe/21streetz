@@ -23,3 +23,11 @@ router.get("/all",authenticate,isAdmin, getAllOrders);
 router.put("/:id/deliver",authenticate,isAdmin, updateOrderToDelivered);
 
 module.exports = router;
+
+
+//payment integration pending - will be added in future iterations
+//payment flow will be:
+//first on frontend we will call createOrder to create the order and get the order details including total price
+//then we will integrate with payment gateway (like Stripe) to process the payment with the id and total price from the order details
+//get payment confirmation from the payment gateway and then call updateOrderToPaid to update the order status to paid and store payment details
+
