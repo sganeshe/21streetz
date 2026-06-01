@@ -526,3 +526,139 @@ body {
     filter: blur(0px); 
   }
 }
+
+/* ================= CHECKOUT ================= */
+
+/* Core aesthetic classes */
+
+.textured-bg {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/img/black-bg.png');
+  background-size: cover;
+  background-attachment: fixed;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Cart Drawer */
+.cart-overlay {
+  position: fixed;
+  top: 7.85rem; left: 15.8rem; right: 15.8rem; bottom: 7.85rem;
+  background: rgba(0,0,0,0.8);
+}
+
+.cart-drawer {
+  position: fixed;
+  right: 15.8rem;
+  top: 7.85rem;
+  bottom: 7.85rem;
+  left: 38.3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cart-item-img {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #ff0000;
+}
+
+.checkout-btn {
+  margin-top: auto;
+  background: transparent;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Checkout Page Grid */
+.checkout-container {
+  max-width: 1000px;
+  margin: 4rem auto;
+  padding: 2rem;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+
+/* Form Inputs */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.retro-input {
+  background: transparent;
+  border: 1px solid #ff0000;
+  color: #ff0000;
+  padding: 0.5rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.retro-input:focus {
+  box-shadow: 0 0 5px #ff0000;
+}
+
+/* Summary Rows */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.summary-row.total {
+  border-top: 1px solid #ff0000;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* ============================================================
+   CUSTOM RED SCROLLBARS
+============================================================ */
+
+/* Target the specific scrollable containers */
+.checkout-page::-webkit-scrollbar,
+.cart-items::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* The track (background) of the scrollbar */
+.checkout-page::-webkit-scrollbar-track,
+.cart-items::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* The draggable thumb of the scrollbar */
+.checkout-page::-webkit-scrollbar-thumb,
+.cart-items::-webkit-scrollbar-thumb {
+  background: #ff0000;
+  border-radius: 10px;
+}
+
+/* Hover effect for the thumb */
+.checkout-page::-webkit-scrollbar-thumb:hover,
+.cart-items::-webkit-scrollbar-thumb:hover {
+  background: #cc0000;
+}
+
+/* Standard syntax for Firefox */
+.checkout-page,
+.cart-items {
+  scrollbar-width: thin;
+  scrollbar-color: #ff0000 transparent;
+}
