@@ -30,14 +30,6 @@ body {
   overflow: hidden;
 }
 
-/*main bg*/
-/* .scene__bg {
-  position: absolute;
-  inset: 0;
-  /* background: url('/img/main-bg.png') center/cover no-repeat;
-  z-index: 0;
-} */
-
 #bg-canvas {
   position: absolute;
   inset: 0;
@@ -48,7 +40,6 @@ body {
   pointer-events: none;
 }
 
-/* 🔥 TEXTURE LAYER */
 .scene__card {
   position: relative;
   z-index: 2;
@@ -57,9 +48,7 @@ body {
   display: flex;
   flex-direction: column;
 
-  /* 🔥 TEXTURE + COLOR */
   background:
-    /* url('/img/cutout-frame.jpg') center/cover no-repeat, */
     var(--red);
 
   box-shadow:
@@ -69,19 +58,20 @@ body {
   background-blend-mode: screen;
 }
 
-/*scene card cutout frame*/
 .scene__card::before {
   content: "";
   position: absolute;
   inset: 0px;
-  /* ADJUSTMENT: Set background size to 100% 100% to fit the locked container */
   background: url('/img/cutout_frame.png') center / 141% 211% no-repeat;
+  background-blend-mode: screen;
+  filter: opacity(0.65);
   z-index: 5;
   pointer-events: none;
 }
 
 .scene__card.is-inner {
-  background: url(/img/black-bg.png);
+  background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/img/black-bg.png');
+  background-color: #000000;
   background-size: cover;
 }
 
@@ -158,8 +148,10 @@ body {
 .card__ticker {
   height: 28px;
   overflow: hidden;
-  background-color: #000000;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/img/black-bg.png');
   background-size: cover;
+  background-color: #000000;
+  background-position: center;
   color: var(--red);
   display: flex;
   align-items: center;
@@ -188,6 +180,25 @@ body {
     /* Translates exactly half its width, then resets instantly */
     transform: translateX(-50%); 
   }
+}
+
+.textured-logo {
+  width: 480px;
+  height: 250px;
+  
+  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/img/black-bg.png');
+  background-size: cover;
+  background-position: center;
+  
+  -webkit-mask-image: url('/img/Logo.svg');
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  
+  mask-image: url('/img/Logo.svg');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
 }
 
 /* ============================================================
@@ -285,6 +296,21 @@ body {
   flex-direction: column;
 }
 
+.low-stock-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #000000;
+  color: #ff0000;
+  padding: 4px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  z-index: 10;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  pointer-events: none;
+}
+
 /* ================= IMAGE ================= */
 
 .product__img,
@@ -300,7 +326,6 @@ body {
 .press-product__img {
   height: 290px;
   max-width: 100%;
-  background-image: url(img/press.png);
   background-repeat: no-repeat;
   background-size: cover;
 }

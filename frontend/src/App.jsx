@@ -69,13 +69,13 @@ export default function App() {
 }
 
 /* ============================================================
-   PAGE COMPONENTS (Powered by data.js)
+   PAGE COMPONENTS
 ============================================================ */
 
 function Home() {
   return (
     <div className="home">
-      <img src="/img/Logo.svg" style={{ width: '480px' }} alt="21streetz Logo" />
+      <div className="textured-logo" aria-label="21streetz Logo" role="img"></div>
     </div>
   );
 }
@@ -84,7 +84,7 @@ function About() {
   return (
     <div className="about">
       <p>
-        <span>21 streetz </span>{infoData.about.description}<br /><br />
+        {infoData.about.description}<br /><br />
         <span>members</span><br />
         {infoData.about.members.join(', ')}
       </p>
@@ -96,22 +96,32 @@ function Shop({ onProductClick }) {
   return (
     <div className="shop">
       <div className="products">
-        {/* Mapping through shopData dynamically */}
-        {shopData.map(product => (
-          <div className="product" key={product.id} onClick={() => onProductClick(product.id)}>
-            <div className="product__img">
-              <img src={product.image} alt={product.name} />
-            </div>
-            <div className="product__info">
-              <div className="left">
-                <p>{product.name}</p>
-                <span>{product.price}</span>
+        {shopData.map(product => {
+          const isLowStock = product.stock > 0 && product.stock <= 5;
+
+          return (
+            <div className="product" key={product.id} onClick={() => onProductClick(product.id)}>
+              <div className="product__img" style={{ position: 'relative' }}>
+                
+                {isLowStock && (
+                  <div className="low-stock-badge">
+                    only few left
+                  </div>
+                )}
+
+                <img src={product.image} alt={product.name} />
               </div>
-              <div className="right"><img src="/img/plus.png" alt="add" /></div>
+              <div className="product__info">
+                <div className="left">
+                  <p>{product.name}</p>
+                  <span>{product.price}</span>
+                </div>
+                <div className="right"><img src="/img/plus.png" alt="add" /></div>
+              </div>
+              <div className="product__line"></div>
             </div>
-            <div className="product__line"></div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
