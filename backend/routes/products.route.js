@@ -7,8 +7,8 @@ const {
   deleteProduct 
 } = require("../controllers/product.controller");
 const upload = require("../middlewares/upload.middleware");
-const isAdmin = require("../middleware/isAdmin.middleware");
-const authenticate = require("../middlewares/authenticate.middleware");
+const authenticate = require("../middlewares/auth.middleware");
+const isAdmin = require("../middlewares/isAdmin.middleware");
 
 const router = express.Router();
 

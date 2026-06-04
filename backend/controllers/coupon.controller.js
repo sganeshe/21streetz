@@ -5,6 +5,7 @@ const couponCreateSchema = z.object({
   code: z.string().min(1).uppercase().trim(),
   discountType: z.enum(["PERCENTAGE", "FIXED"]),
   discountValue: z.number().positive(),
+  maxDiscountAmount: z.number().positive().optional(),
   expiryDate: z.coerce.date(),
   isActive: z.boolean().optional(),
 });
@@ -20,7 +21,7 @@ module.exports.addCoupon = async (req, res, next) => {
       });
     }
 
-    const { code, discountType, discountValue, expiryDate, isActive } = parse.data;
+    const { code, discountType, discountValue, maxDiscountAmount, expiryDate, isActive } = parse.data;
 
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
@@ -34,6 +35,7 @@ module.exports.addCoupon = async (req, res, next) => {
       code,
       discountType,
       discountValue,
+      maxDiscountAmount,
       expiryDate,
       isActive,
     });

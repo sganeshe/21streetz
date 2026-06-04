@@ -1,3 +1,5 @@
+const dotenv = require('dotenv');
+dotenv.config();
 const express = require('express');
 const cors = require('cors');
 const indexRoutes = require('./routes/index.route');
@@ -6,7 +8,7 @@ const connectDB= require('./config/db.config');
 const app = express();
 const port = process.env.PORT || 3000;
 
-await connectDB().then(() => {
+connectDB().then(() => {
   console.log("Connected to MongoDB");
 }).catch((err) => {
   console.error("Failed to connect to MongoDB", err);

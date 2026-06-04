@@ -73,7 +73,13 @@ module.exports.createOrder = async (req, res, next) => {
       }
 
       if (coupon.discountType === "PERCENTAGE") {
-        discountAmount = (subTotal * coupon.discountValue) / 100;
+        let rawDiscount = (subTotal * coupon.discountValue) / 100;
+        
+        if (coupon.maxDiscountAmount) {
+          discountAmount = Math.min(rawDiscount, coupon.maxDiscountAmount);
+        } else {
+          discountAmount = rawDiscount;
+        }
       } else if (coupon.discountType === "FIXED") {
         discountAmount = coupon.discountValue;
       }

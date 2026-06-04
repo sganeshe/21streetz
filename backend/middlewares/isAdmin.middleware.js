@@ -1,5 +1,4 @@
-
-module.exports.isAdminMiddleware = (req, res, next) => {
+const isAdminMiddleware = (req, res, next) => {
     if (req.userRole !== "ADMIN") {
         return res.status(403).json({
             success: false,
@@ -8,3 +7,5 @@ module.exports.isAdminMiddleware = (req, res, next) => {
     }   
     next();
 }
+
+module.exports = isAdminMiddleware;

@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 
@@ -186,7 +186,7 @@ module.exports.logout = async (req, res) => {
 
 module.exports.getCurrentUser = async (req, res, next) => {
   try {
-    const userId = req.userId; 
+    const userId = req.userId;
     const user = await User.findById(userId).select("-hashedPassword");
 
     if (!user) {

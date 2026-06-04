@@ -1,9 +1,8 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-
-module.exports.authMiddleware = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
     try{
         const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -22,8 +21,8 @@ module.exports.authMiddleware = (req, res, next) => {
             message: "Invalid or expired token",
         });
     }
-
-    req.userId = verify.id;
+    
+    req.userId = verify.userId;
     req.userRole = verify.role;
     next();
     }catch(err){
@@ -34,3 +33,5 @@ module.exports.authMiddleware = (req, res, next) => {
 
     }
 }
+
+module.exports = authMiddleware;
