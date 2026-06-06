@@ -236,6 +236,12 @@ body {
   .card__body h2 {
     font-size: 2.5rem;
   }
+
+  .cart-drawer {
+    width: 90%;
+    right: 5%;
+    padding: 1.5rem;
+  }
 }
 
 /*home*/
@@ -540,17 +546,19 @@ body {
 
 /* Cart Drawer */
 .cart-overlay {
-  position: fixed;
-  top: 7.85rem; left: 15.8rem; right: 15.8rem; bottom: 7.85rem;
+  position: absolute;
+  inset: 0;
   background: rgba(0,0,0,0.8);
+  z-index: 100;
 }
 
 .cart-drawer {
-  position: fixed;
-  right: 15.8rem;
-  top: 7.85rem;
-  bottom: 7.85rem;
-  left: 38.3rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(400px, 95%);
+  max-width: 100%;
   display: flex;
   flex-direction: column;
 }
