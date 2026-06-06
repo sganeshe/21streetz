@@ -40,7 +40,7 @@ export default function App() {
       <div className="scene__dots"></div>
 
       <div className={`scene__card ${currentPage !== 'home' ? 'is-inner' : ''}`}>
-        <nav className="card__nav" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2.75rem', marginTop: '0.5rem' }}>
+        <nav className="card__nav" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.75rem' }}>
           <a href="#" className={currentPage === 'about' ? 'active' : ''} onClick={(e) => { e.preventDefault(); navTo('about'); }}>about</a>
           <a href="#" className={currentPage === 'shop' ? 'active' : ''} onClick={(e) => { e.preventDefault(); navTo('shop'); }}>shop</a>
           <a href="#" className={currentPage === 'press' ? 'active' : ''} onClick={(e) => { e.preventDefault(); navTo('press'); }}>press</a>
