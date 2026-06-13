@@ -27,11 +27,12 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    countInStock: {
-      type: Number,
-      required: true,
-      default: 0,
-    }
+    sizes: [
+      {
+        size: { type: String, required: true }, // e.g., "S", "M", "L", "One Size"
+        countInStock: { type: Number, required: true, default: 0 }
+      }
+    ]
   },
   {
     timestamps: true,
