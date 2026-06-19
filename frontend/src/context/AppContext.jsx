@@ -4,41 +4,32 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState('home');
+  
+  // Item detail states
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null); 
+  
+  // Overlay states
   const [isCheckout, setIsCheckout] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
+  // Master navigation controller
   const navTo = (page) => {
     setCurrentPage(page);
-    setSelectedProduct(null); 
+    setSelectedProduct(null);
+    setSelectedOrder(null); 
     setIsCheckout(false);
-  };
-
-  const addToCart = (product, selectedSize = 'M') => {
-    const existingItem = cartItems.find(
-      (item) => item.id === product.id && item.size === selectedSize
-    );
-
-    if (existingItem) {
-      setCartItems(cartItems.map((item) =>
-        item.id === product.id && item.size === selectedSize
-          ? { ...item, qty: item.qty + 1 }
-          : item
-      ));
-    } else {
-      setCartItems([...cartItems, { ...product, size: selectedSize, qty: 1 }]);
-    }
-    setIsCartOpen(true);
+    setIsCartOpen(false);
   };
 
   return (
     <AppContext.Provider value={{
-      currentPage, setCurrentPage, navTo,
+      currentPage, setCurrentPage,
       selectedProduct, setSelectedProduct,
+      selectedOrder, setSelectedOrder,
+      isCheckout, setIsCheckout,
       isCartOpen, setIsCartOpen,
-      cartItems, setCartItems, addToCart,
-      isCheckout, setIsCheckout
+      navTo
     }}>
       {children}
     </AppContext.Provider>

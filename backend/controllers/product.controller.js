@@ -2,12 +2,26 @@ const Product = require("../models/product.model");
 const { z } = require("zod");
 const cloudinary = require("../config/cloudinary.config");
 
+const sizeSchema = z.array(
+  z.object({
+    size: z.string().min(1),
+    countInStock: z.coerce.number().min(0)
+  })
+);
+
 const productSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
   price: z.coerce.number().min(0),
   category: z.string().min(1),
-  countInStock: z.coerce.number().min(0),
+  sizes: z.string().transform((str, ctx) => {
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid JSON format for sizes" });
+      return z.NEVER;
+    }
+  }).pipe(sizeSchema),
 });
 
 const updateProductSchema = z.object({
@@ -15,9 +29,18 @@ const updateProductSchema = z.object({
   description: z.string().min(1).optional(),
   price: z.coerce.number().min(0).optional(),
   category: z.string().min(1).optional(),
-  countInStock: z.coerce.number().min(0).optional(),
+  sizes: z.string().transform((str, ctx) => {
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid JSON format for sizes" });
+      return z.NEVER;
+    }
+  }).pipe(sizeSchema).optional(),
   existingImages: z.union([z.string().url(), z.array(z.string().url())]).optional(),
 });
+
+
 
 const uploadToCloudinary = (fileBuffer) => {
   return new Promise((resolve, reject) => {
@@ -83,7 +106,7 @@ module.exports.addProduct = async (req, res, next) => {
     const uploadPromises = req.files.map((file) => uploadToCloudinary(file.buffer));
     const imageUrls = await Promise.all(uploadPromises);
 
-    const { name, description, price, category, countInStock } = parse.data;
+    const { name, description, price, category, sizes } = parse.data;
 
     const product = new Product({
       name,
@@ -91,7 +114,7 @@ module.exports.addProduct = async (req, res, next) => {
       price,
       images: imageUrls,
       category,
-      countInStock,
+      sizes,
     });
 
     await product.save();

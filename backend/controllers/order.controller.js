@@ -8,6 +8,7 @@ const orderCreateSchema = z.object({
     z.object({
       qty: z.number().int().positive(),
       product: z.string().regex(/^[0-9a-fA-F]{24}$/),
+      size: z.string().min(1),
     })
   ).min(1),
   shippingAddress: z.object({
@@ -49,8 +50,14 @@ module.exports.createOrder = async (req, res, next) => {
         return res.status(404).json({ success: false, message: "Product not found" });
       }
 
-      if (dbProduct.countInStock < item.qty) {
-        return res.status(400).json({ success: false, message: `Insufficient stock for ${dbProduct.name}` });
+      const selectedSize = dbProduct.sizes.find(s => s.size === item.size);
+
+      if (!selectedSize) {
+        return res.status(400).json({ success: false, message: `Size ${item.size} not available for ${dbProduct.name}` });
+      }
+
+      if (selectedSize.countInStock < item.qty) {
+        return res.status(400).json({ success: false, message: `Insufficient stock for ${dbProduct.name} (Size: ${item.size})` });
       }
 
       subTotal += dbProduct.price * item.qty;
@@ -60,6 +67,7 @@ module.exports.createOrder = async (req, res, next) => {
         qty: item.qty,
         price: dbProduct.price,
         product: dbProduct._id,
+        size: item.size,
       });
     }
 
@@ -173,9 +181,16 @@ module.exports.updateOrderToPaid = async (req, res, next) => {
     const updatedOrder = await order.save();
 
     for (const item of order.orderItems) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { countInStock: -item.qty }
-      });
+      await Product.findOneAndUpdate(
+        { 
+          _id: item.product, 
+          "sizes.size": item.size,
+          "sizes.countInStock": { $gte: item.qty } 
+        },
+        { 
+          $inc: { "sizes.$.countInStock": -item.qty } 
+        }
+      );
     }
 
     res.status(200).json({
