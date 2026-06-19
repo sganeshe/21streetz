@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { couponService } from '../../services/coupon.service';
 
 export default function CheckoutPage() {
   const { setIsCheckout } = useAppContext();
@@ -10,7 +11,7 @@ export default function CheckoutPage() {
 
   // --- UI STATES ---
   const [authMode, setAuthMode] = useState('login');
-  const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
+  const [authForm, setAuthForm] = useState({ name: '', email: '', phone:'', password: '' });
   const { navTo } = useAppContext();
   
   const [shippingForm, setShippingForm] = useState({
@@ -42,21 +43,44 @@ export default function CheckoutPage() {
       if (authMode === 'login') {
         await login(authForm.email, authForm.password);
       } else {
-        await register(authForm.name, authForm.email, authForm.password);
+        await register(authForm.name, authForm.email, authForm.password, authForm.phone);
       }
     } catch (err) {
       alert("Authentication failed. Please check your credentials.");
     }
   };
 
-  const handleApplyCoupon = () => {
-    if (couponCode.toUpperCase() === '21STREETZ') {
-      setDiscountAmount(cartTotal * 0.10);
-    } else {
-      alert("Invalid or expired coupon");
-      setDiscountAmount(0);
+  const handleApplyCoupon = async () => {
+  if (!couponCode) return;
+
+  try {
+    const response = await couponService.validate(couponCode);
+    const coupon = response.coupon;
+    
+    let calculatedDiscount = 0;
+
+    if (coupon.discountType === "PERCENTAGE") {
+      let rawDiscount = (cartTotal * coupon.discountValue) / 100;
+      
+      if (coupon.maxDiscountAmount) {
+        calculatedDiscount = Math.min(rawDiscount, coupon.maxDiscountAmount);
+      } else {
+        calculatedDiscount = rawDiscount;
+      }
+    } else if (coupon.discountType === "FIXED") {
+      calculatedDiscount = coupon.discountValue;
     }
-  };
+
+    setDiscountAmount(calculatedDiscount);
+    alert(`Coupon applied! You saved ₹${calculatedDiscount.toFixed(2)}`);
+
+  } catch (err) {
+    const errorMsg = err.response?.data?.message || "Invalid or expired coupon";
+    alert(errorMsg);
+    setDiscountAmount(0);
+    setCouponCode(''); 
+  }
+};
 
   const handlePaymentSubmit = () => {
     const orderPayload = {
@@ -89,12 +113,31 @@ export default function CheckoutPage() {
             </div>
             
             {authMode === 'register' && (
+              <>
               <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>FULL NAME</label>
               <input type="text" style={inputStyle} required value={authForm.name} onChange={e => setAuthForm({...authForm, name: e.target.value})} /></div>
+              </>
+              
             )}
             
             <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>EMAIL ADDRESS</label>
             <input type="email" style={inputStyle} required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} /></div>
+
+            {authMode === 'register' && (
+              <>
+              <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PHONE NUMBER</label>
+              <input 
+                type="text" 
+                style={inputStyle} 
+                required 
+                minLength={10} 
+                maxLength={15} 
+                value={authForm.phone} 
+                onChange={e => setAuthForm({...authForm, phone: e.target.value})} 
+              /></div>
+              </>
+              
+            )}
             
             <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PASSWORD</label>
             <input type="password" style={inputStyle} required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} /></div>

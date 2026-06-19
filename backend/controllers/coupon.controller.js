@@ -84,3 +84,33 @@ module.exports.deleteCoupon = async (req, res, next) => {
     next(err);
   }
 };
+
+
+module.exports.validateCoupon = async (req, res, next) => {
+  try {
+    const { code } = req.body;
+    
+    if (!code) {
+      return res.status(400).json({ success: false, message: "Coupon code is required" });
+    }
+
+    const coupon = await Coupon.findOne({ code: code.toUpperCase().trim(), isActive: true });
+    
+    if (!coupon || new Date() > coupon.expiryDate) {
+      return res.status(400).json({ success: false, message: "Invalid or expired coupon code" });
+    }
+
+    // Only send back the data the frontend needs to calculate the discount
+    res.status(200).json({
+      success: true,
+      coupon: {
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        maxDiscountAmount: coupon.maxDiscountAmount
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -13,5 +13,9 @@ export const couponService = {
   delete: async (id) => {
     const response = await api.delete(`/coupons/${id}`);
     return response.data;
+  },
+  validate: async (code) => {
+    const response = await api.post("/coupons/validate", { code });
+    return response.data;
   }
 };
