@@ -10,6 +10,8 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
   const pageRef = useRef(null);
   
@@ -105,11 +107,47 @@ export default function ProductDetail() {
               </span>
             ))}
           </p>
-          <p style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-              {product.description}
-            </span>
-          </p>
+          <div className="pd__description">
+            <div
+              className="pd__description-header"
+              onClick={() => setIsDescriptionOpen((open) => !open)}
+              style={{ cursor: "pointer" }}
+            >
+              <span>jaankari</span>
+              <img
+                className={`animated-arrow ${isDescriptionOpen ? "rotated" : ""}`}
+                src="/img/arrow.png"
+                alt="arrow"
+              />
+            </div>
+            {isDescriptionOpen && (
+              <div className="pd__description-text">{product.description}</div>
+            )}
+          </div>
+          <div className="pd__accordion">
+            <div
+              className="acc__item"
+              onClick={() => setIsSizeChartOpen((open) => !open)}
+              style={{ cursor: "pointer" }}
+            >
+              <span>size chart</span>
+              <img
+                className={`animated-arrow ${isSizeChartOpen ? "rotated" : ""}`}
+                src="/img/arrow.png"
+                alt="arrow"
+              />
+            </div>
+            {isSizeChartOpen && (
+              <div className="size-chart-details">
+                {product.sizes?.map((s) => (
+                  <div key={s.size} className="size-chart-row">
+                    <span>{s.size}</span>
+                    <span>{s.countInStock} in stock</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div
             className="pd__plus"
             style={{ cursor: "pointer" }}
@@ -118,16 +156,6 @@ export default function ProductDetail() {
             }}
           >
             +
-          </div>
-          <div className="pd__accordion">
-            <div className="acc__item">
-              <span>jaankari</span>
-              <img src="/img/arrow.png" alt="arrow" />
-            </div>
-            <div className="acc__item">
-              <span>size chart</span>
-              <img src="/img/arrow.png" alt="arrow" />
-            </div>
           </div>
         </div>
       </div>
