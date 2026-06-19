@@ -39,15 +39,16 @@ export default function Signup() {
       style={{ 
         display: "flex", 
         flexDirection: "column", 
-        alignItems: "center", 
-        justifyContent: "center", 
-        minHeight: "60vh", 
-        padding: "2rem", 
+        alignItems: "stretch", 
+        justifyContent: "flex-start", 
+        height: "100%",
+        padding: "1rem", 
         color: "#ff0000", 
-        fontFamily: "monospace" 
+        fontFamily: "monospace",
+        overflowY: "auto"
       }}
     >
-      <div style={{ marginTop: "1rem", height: "1200px", width: "1000px" }}>
+      <div style={{ marginTop: "0rem", width: "100%" }}>
         
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem", borderBottom: "1px solid rgba(255,0,0,0.3)", paddingBottom: "0.5rem" }}>
           <h3 style={{ fontSize: "25px", fontWeight: "bold", textTransform: "lowercase", margin: 0 }}>Create Account</h3>

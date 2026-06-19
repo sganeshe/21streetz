@@ -670,7 +670,9 @@ body {
 /* Target the specific scrollable containers */
 .checkout-page::-webkit-scrollbar,
 .orders::-webkit-scrollbar,
-.cart-items::-webkit-scrollbar {
+.cart-items::-webkit-scrollbar,
+.login-page::-webkit-scrollbar,
+.signup-page::-webkit-scrollbar {
   width: 4px;
 }
 
@@ -681,6 +683,8 @@ body {
 /* The track (background) of the scrollbar */
 .checkout-page::-webkit-scrollbar-track,
 .orders::-webkit-scrollbar-track,
+.signup-page::-webkit-scrollbar-track,
+.login-page::-webkit-scrollbar-track,
 .cart-items::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -692,6 +696,8 @@ body {
 /* The draggable thumb of the scrollbar */
 .checkout-page::-webkit-scrollbar-thumb,
 .orders::-webkit-scrollbar-thumb,
+.signup-page::-webkit-scrollbar-thumb,
+.login-page::-webkit-scrollbar-thumb,
 .cart-items::-webkit-scrollbar-thumb {
   background: #ff0000;
   border-radius: 10px;
@@ -705,6 +711,8 @@ body {
 /* Hover effect for the thumb */
 .checkout-page::-webkit-scrollbar-thumb:hover,
 .orders::-webkit-scrollbar-thumb:hover,
+.signup-page::-webkit-scrollbar-thumb:hover,
+.login-page::-webkit-scrollbar-thumb:hover,
 .cart-items::-webkit-scrollbar-thumb:hover {
   background: #cc0000;
 }
