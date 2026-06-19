@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useAppContext } from "../context/AppContext";
 
@@ -8,6 +8,12 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  
+  const pageRef = useRef(null);
+
+  React.useEffect(() => {
+    pageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const inputStyle = {
     background: "transparent", border: "1px solid #ff0000", color: "#ff0000", padding: "10px",
@@ -26,6 +32,7 @@ export default function Login() {
 
   return (
     <div 
+      ref={pageRef}
       className="login-page" 
       style={{ 
         display: "flex", 
@@ -38,30 +45,33 @@ export default function Login() {
         fontFamily: "monospace" 
       }}
     >
-      <div style={{ width: "100%", maxWidth: "360px" }}>
-        <span onClick={() => navTo("shop")} style={{ cursor: "pointer", textDecoration: "underline", marginBottom: "2rem", display: "inline-block" }}>back to shop</span>
+      <div style={{ marginTop: "1rem", height: "1200px", width: "1000px" }}>
+        
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem", borderBottom: "2px solid rgba(255,0,0,0.3)", paddingBottom: "0.5rem" }}>
+          <h3 style={{ fontSize: "25px", fontWeight: "bold", textTransform: "lowercase", margin: 0 }}>Login To Continue</h3>
+          <span onClick={() => navTo("shop")} style={{ cursor: "pointer", fontSize: "18px", opacity: 0.8 }}>[ back_to_shop ]</span>
+        </div>
         
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <h3 style={{ fontSize: "13px", fontWeight: "normal", textTransform: "uppercase", margin: 0 }}>Login To Continue</h3>
           
-          {error && <div style={{ color: "#ff0000", border: "1px solid #ff0000", padding: "8px", fontSize: "11px" }}>[ERROR] {error}</div>}
+          {error && <div style={{ color: "#ff0000", border: "1px solid #ff0000", padding: "8px", fontSize: "20px" }}>[ERROR] {error}</div>}
           
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontSize: "11px", textTransform: "uppercase" }}>Email Address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} required />
+            <label style={{ textAlign: "left", fontSize: "20px", textTransform: "uppercase" }}>Email Address</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{...inputStyle, fontSize: "20px"}} required />
           </div>
           
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontSize: "11px", textTransform: "uppercase" }}>Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} required />
+            <label style={{ textAlign: "left", fontSize: "20px", textTransform: "uppercase" }}>Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{...inputStyle, fontSize: "20px"}} required />
           </div>
           
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
-            <button type="submit" style={{ ...inputStyle, background: "#ff0000", color: "#000", border: "none", cursor: "pointer" }}>
-              LOGIN
+            <button type="submit" style={{ ...inputStyle, fontSize: "15px", background: "#ff0000", color: "#000", border: "none", cursor: "pointer", fontWeight: "bold" }}>
+              EXECUTE_LOGIN
             </button>
             
-            <p style={{ fontSize: "11px", margin: 0 }}>
+            <p style={{ fontSize: "20px", margin: "1rem", textAlign: "center" }}>
               <span style={{ opacity: 0.7 }}>Don't have an account? </span>
               <span onClick={() => navTo("signup")} style={{ cursor: "pointer", textDecoration: "underline" }}>Sign up here</span>
             </p>

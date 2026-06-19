@@ -36,7 +36,6 @@ export default function Shop() {
     <div className="shop">
       <div className="products">
         {products.map((product) => {
-          // Calculate total stock across all sizes
           const totalStock =
             product.sizes?.reduce((sum, s) => sum + s.countInStock, 0) || 0;
           const isLowStock = totalStock > 0 && totalStock <= 5;
@@ -47,11 +46,11 @@ export default function Shop() {
               className="product"
               key={product._id}
               onClick={() => {
-                // FIXED: Use the context state updater, NOT a URL change!
                 setSelectedProduct(product._id);
               }}
+              style={{gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',}}
             >
-              <div className="product__img" style={{ position: "relative" }}>
+              <div className="product__img" style={{ }}>
                 {isSoldOut ? (
                   <div className="low-stock-badge">sold out</div>
                 ) : isLowStock ? (
@@ -60,12 +59,13 @@ export default function Shop() {
                 <img
                   src={product.images?.[0] || "/img/shirt3.png"}
                   alt={product.name}
+                  style={{ opacity: isSoldOut ? 0.3 : 1, transition: "opacity 0.3s ease-in-out", }}
                 />
               </div>
               <div className="product__info">
                 <div className="left">
-                  <p>{product.name}</p>
-                  <span>₹{product.price}</span>
+                  <p style={{ fontSize: "20px", textAlign: "left", marginLeft: "-0.5rem", color: "#f00", fontFamily: "monospace",}}>{product.name}</p>
+                  <span style={{ fontSize: "15px", marginLeft: "-0.5rem", color: "#fff",}}>₹{product.price}</span>
                 </div>
                 <div
                   className="right"

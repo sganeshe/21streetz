@@ -10,10 +10,10 @@ export default function News() {
 
   return (
     <div className="news">
-      <h2>NEWS</h2>
+      <h2 style={{ fontSize: '25px', color: '#ff0000', fontFamily: 'monospace', marginBottom: '1rem' }}>NEWS</h2>
       {newsData.map(news => (
-        <p key={news._id} style={{ marginBottom: '1rem' }}>
-          <strong>{news.title}</strong><br />
+        <p key={news._id} style={{ paddingLeft: '1rem', marginTop: '1rem', textAlign: 'left' }}>
+          <strong style={{ fontSize: '20px', textAlign: 'left', color: '#ff0000', fontFamily: 'monospace' }}>{news.title}</strong><br />
           {news.content}
         </p>
       ))}

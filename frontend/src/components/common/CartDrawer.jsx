@@ -5,12 +5,10 @@ import { useCart } from "../../context/CartContext"; // IMPORT CART CONTEXT
 export default function CartDrawer() {
   const { setIsCartOpen, setIsCheckout, setCurrentPage } = useAppContext();
 
-  // USE CONTEXT INSTEAD OF LOCAL STATE
   const { cartItems, updateQuantity, cartTotal } = useCart();
 
   const closeCart = () => setIsCartOpen(false);
 
-  // Use the cart context updater (safe and centralized)
   const updateQty = (id, size, delta) => {
     updateQuantity(id, size, delta);
   };
@@ -41,7 +39,7 @@ export default function CartDrawer() {
           top: 0,
           right: 0,
           bottom: 0,
-          width: "min(400px, 95%)",
+          width: "50%",
           backgroundColor: "#050505",
           borderLeft: "1px solid #ff0000",
           padding: "2rem",
@@ -58,10 +56,10 @@ export default function CartDrawer() {
             marginBottom: "2rem",
           }}
         >
-          <span style={{ cursor: "pointer" }} onClick={closeCart}>
+          <span style={{ cursor: "pointer", fontSize: "18px" }} onClick={closeCart}>
             back
           </span>
-          <span style={{ textDecoration: "underline" }}>samaan</span>
+          <span style={{ textDecoration: "underline", fontSize: "18px" }}>samaan</span>
         </div>
 
         <div className="cart-items" style={{ flex: 1, overflowY: "auto" }}>
@@ -81,8 +79,8 @@ export default function CartDrawer() {
                   src={item.image || "/img/shirt3.png"}
                   alt={item.name}
                   style={{
-                    width: "80px",
-                    height: "80px",
+                    width: "160px",
+                    height: "160px",
                     objectFit: "cover",
                     border: "1px solid #ff0000",
                   }}
@@ -90,7 +88,7 @@ export default function CartDrawer() {
                 <div
                   style={{
                     flex: 1,
-                    fontSize: "11px",
+                    fontSize: "18px",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
@@ -137,40 +135,22 @@ export default function CartDrawer() {
             ))
           )}
         </div>
-
-        <div
-          className="cart-summary"
-          style={{
-            fontSize: "0.8rem",
-            marginTop: "2rem",
-            borderTop: "1px solid #333",
-            paddingTop: "1rem",
-          }}
-        >
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginTop: "1rem",
+              marginTop: "1.5rem",
               borderTop: "1px solid #ff0000",
-              paddingTop: "0.5rem",
+              paddingTop: "1rem",
             }}
           >
-            <span>TOTAL</span>
-            <span>₹{cartTotal.toFixed(2)}</span>
+            <span style={{ fontSize: "1.2rem" }}>TOTAL</span>
+            <span style={{ fontSize: "1.2rem" }}>₹{cartTotal.toFixed(2)}</span>
           </div>
-        </div>
 
         <button
           style={{
-            marginTop: "2rem",
-            background: "none",
-            border: "none",
-            color: "#ff0000",
-            textDecoration: "underline",
-            cursor: "pointer",
-            fontFamily: "monospace",
-            fontSize: "1rem",
+            marginTop: "1rem", padding: "10px 20px", fontSize: "15px", background: "#ff0000", color: "#000", border: "none", cursor: "pointer", fontWeight: "bold",
           }}
           onClick={cartItems.length > 0 ? goToCheckout : null}
         >

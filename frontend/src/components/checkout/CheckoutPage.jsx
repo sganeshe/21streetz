@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -9,8 +9,9 @@ export default function CheckoutPage() {
   const { isAuthenticated, login, register } = useAuth();
 
   // --- UI STATES ---
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
+  const { navTo } = useAppContext();
   
   const [shippingForm, setShippingForm] = useState({
     firstName: '', lastName: '', address: '', apartment: '',
@@ -28,6 +29,11 @@ export default function CheckoutPage() {
   const labelStyle = { display: 'block', fontSize: '11px', marginBottom: '8px', textTransform: 'uppercase' };
   const groupStyle = { marginBottom: '1.5rem' };
   const headerStyle = { fontSize: '13px', marginBottom: '1.5rem', fontWeight: 'normal' };
+  const pageRef = useRef(null);
+  
+  React.useEffect(() => {
+      pageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, []);
 
   // --- HANDLERS ---
   const handleAuthSubmit = async (e) => {
@@ -44,8 +50,6 @@ export default function CheckoutPage() {
   };
 
   const handleApplyCoupon = () => {
-    // In a real scenario, you'd hit a /api/coupons/validate endpoint here.
-    // For now, let's mock a 10% discount if they type "21STREETZ"
     if (couponCode.toUpperCase() === '21STREETZ') {
       setDiscountAmount(cartTotal * 0.10);
     } else {
@@ -55,7 +59,6 @@ export default function CheckoutPage() {
   };
 
   const handlePaymentSubmit = () => {
-    // This is where you will send the final payload to your backend/payment gateway!
     const orderPayload = {
       orderItems: cartItems.map(item => ({ qty: item.qty, product: item.product, size: item.size })),
       shippingAddress: {
@@ -64,7 +67,7 @@ export default function CheckoutPage() {
         postalCode: shippingForm.postalCode,
         country: shippingForm.country
       },
-      paymentMethod: "Razorpay", // or Stripe
+      paymentMethod: "Razorpay",
       couponCode: couponCode.toUpperCase()
     };
     console.log("READY FOR PAYMENT GATEWAY:", orderPayload);
@@ -75,31 +78,32 @@ export default function CheckoutPage() {
   return (
     <div className="checkout-page" style={{ display: 'flex', flexWrap: 'wrap', gap: '5rem', color: '#ff0000', fontFamily: 'monospace', width: '100%', height: '100%', overflowY: 'auto', padding: '2rem 1rem', boxSizing: 'border-box' }}>
       
-      {/* LEFT COLUMN: AUTH OR SHIPPING */}
       <div style={{ flex: '1.3', minWidth: '300px' }}>
-        <span onClick={() => setIsCheckout(false)} style={{ cursor: 'pointer', textDecoration: 'underline', marginBottom: '2rem', display: 'block' }}>back to shop</span>
         
         {!isAuthenticated ? (
           // --- LOGIN / SIGNUP FORM ---
           <form onSubmit={handleAuthSubmit}>
-            <h3 style={headerStyle}>{authMode === 'login' ? 'LOGIN TO CONTINUE' : 'CREATE ACCOUNT'}</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem", borderBottom: "2px solid rgba(255,0,0,0.3)", paddingBottom: "0.5rem" }}>
+              <h3 style={{ fontSize: "25px", fontWeight: "bold", textTransform: "lowercase", margin: 0 }}>{authMode === 'login' ? 'LOGIN TO CONTINUE' : 'CREATE ACCOUNT'}</h3>
+              <span onClick={() => navTo("shop")} style={{ cursor: "pointer", fontSize: "18px", opacity: 0.8 }}>[ back_to_shop ]</span>
+            </div>
             
             {authMode === 'register' && (
-              <div style={groupStyle}><label style={labelStyle}>FULL NAME</label>
+              <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>FULL NAME</label>
               <input type="text" style={inputStyle} required value={authForm.name} onChange={e => setAuthForm({...authForm, name: e.target.value})} /></div>
             )}
             
-            <div style={groupStyle}><label style={labelStyle}>EMAIL ADDRESS</label>
+            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>EMAIL ADDRESS</label>
             <input type="email" style={inputStyle} required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} /></div>
             
-            <div style={groupStyle}><label style={labelStyle}>PASSWORD</label>
+            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PASSWORD</label>
             <input type="password" style={inputStyle} required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} /></div>
             
-            <button type="submit" style={{ ...inputStyle, cursor: 'pointer', background: '#ff0000', color: '#000', border: 'none' }}>
+            <button type="submit" style={{ ...inputStyle, fontSize: '15px', cursor: 'pointer', background: '#ff0000', color: '#000', border: 'none' }}>
               {authMode === 'login' ? 'LOGIN' : 'SIGN UP'}
             </button>
             
-            <p style={{ marginTop: '1rem', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }} 
+            <p style={{ marginTop: '1rem', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }} 
                onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}>
               {authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Login'}
             </p>
@@ -109,47 +113,47 @@ export default function CheckoutPage() {
 
           // --- SHIPPING FORM ---
           <div>
-            <h3 style={headerStyle}>SHIPPING ADDRESS</h3>
+            <h3 style={{...headerStyle, marginBottom: "1rem", textAlign: "left", fontSize: "20px", textTransform: "uppercase"}}>SHIPPING ADDRESS</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', ...groupStyle }}>
-              <div><label style={labelStyle}>FIRST NAME</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, firstName: e.target.value})} /></div>
-              <div><label style={labelStyle}>LAST NAME</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, lastName: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>FIRST NAME</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, firstName: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>LAST NAME</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, lastName: e.target.value})} /></div>
             </div>
-            <div style={groupStyle}><label style={labelStyle}>ADDRESS</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, address: e.target.value})} /></div>
-            <div style={groupStyle}><label style={labelStyle}>APARTMENT, SUITE, ETC.</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, apartment: e.target.value})} /></div>
+            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>ADDRESS</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, address: e.target.value})} /></div>
+            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>APARTMENT, SUITE, ETC.</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, apartment: e.target.value})} /></div>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', ...groupStyle }}>
-              <div><label style={labelStyle}>CITY</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, city: e.target.value})} /></div>
-              <div><label style={labelStyle}>COUNTRY</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, country: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>CITY</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, city: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>COUNTRY</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, country: e.target.value})} /></div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', ...groupStyle }}>
-              <div><label style={labelStyle}>STATE / PROVINCE</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, state: e.target.value})} /></div>
-              <div><label style={labelStyle}>ZIP / POSTAL CODE</label><input type="text" style={inputStyle} onChange={e => setShippingForm({...shippingForm, postalCode: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>STATE / PROVINCE</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, state: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>ZIP / POSTAL CODE</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, postalCode: e.target.value})} /></div>
             </div>
             
-            <button onClick={handlePaymentSubmit} style={{ ...inputStyle, marginTop: '1rem', cursor: 'pointer', background: '#ff0000', color: '#000', border: 'none' }}>CONTINUE TO PAYMENT</button>
+            <button onClick={handlePaymentSubmit} style={{ ...inputStyle, fontSize: '15px', marginTop: '1rem', cursor: 'pointer', background: '#ff0000', color: '#000', border: 'none' }}>CONTINUE TO PAYMENT</button>
           </div>
         )}
       </div>
 
       {/* RIGHT COLUMN: ORDER SUMMARY */}
-      <div style={{ flex: '1', fontSize: '11px', minWidth: '300px', marginTop: '3.3rem' }}>
-        <h3 style={headerStyle}>ORDER SUMMARY</h3>
+      <div style={{ flex: '1', fontSize: '11px', minWidth: '300px' }}>
+        <h3 style={{...headerStyle, marginBottom: "1rem", textAlign: "left", fontSize: "20px", textTransform: "uppercase"}}>ORDER SUMMARY</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
           {cartItems.map((item, index) => (
             <div key={index} style={{ display: 'flex', gap: '1rem' }}>
-              <img src={item.image || '/img/shirt3.png'} alt={item.name} style={{ width: '65px', height: '65px', objectFit: 'cover', border: '1px solid #ff0000' }} />
+              <img src={item.image || '/img/shirt3.png'} alt={item.name} style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ff0000' }} />
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '4px' }}>
-                <div style={{ display: 'flex' }}><span style={{ width: '70px', opacity: 0.7 }}>ITEM</span><span>{item.name}</span></div>
-                <div style={{ display: 'flex' }}><span style={{ width: '70px', opacity: 0.7 }}>SIZE</span><span>{item.size}</span></div>
+                <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>ITEM</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.name}</span></div>
+                <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>SIZE</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.size}</span></div>
                 <div style={{ display: 'flex' }}>
-                  <span style={{ width: '70px', opacity: 0.7 }}>QTY</span>
-                  <span style={{ display: 'flex', gap: '8px' }}>
-                    <span style={{ cursor: 'pointer' }} onClick={() => updateQuantity(item.product, item.size, item.qty + 1)}>+</span>
-                    <span>{item.qty}</span>
-                    <span style={{ cursor: 'pointer' }} onClick={() => updateQuantity(item.product, item.size, item.qty - 1)}>-</span>
+                  <span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>QTY</span>
+                  <span style={{ display: 'flex', gap: '16px' }}>
+                    <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty + 1)}>+</span>
+                    <span style={{ textAlign: 'left', fontSize: '18px', opacity: 1 }}>{item.qty}</span>
+                    <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty - 1)}>-</span>
                   </span>
                 </div>
-                <div style={{ display: 'flex' }}><span style={{ width: '70px', opacity: 0.7 }}>PRICE</span><span>₹{(item.price * item.qty).toFixed(2)}</span></div>
+                <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>PRICE</span><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>₹{(item.price * item.qty).toFixed(2)}</span></div>
               </div>
             </div>
           ))}
@@ -160,7 +164,7 @@ export default function CheckoutPage() {
           <input 
             type="text" 
             placeholder="PROMO CODE" 
-            style={{ ...inputStyle, textTransform: 'uppercase' }} 
+            style={{ ...inputStyle, fontSize: '15px', width: '100%', textTransform: 'uppercase' }} 
             value={couponCode} 
             onChange={e => setCouponCode(e.target.value)} 
           />
@@ -168,13 +172,13 @@ export default function CheckoutPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>SUBTOTAL</span><span>₹{cartTotal.toFixed(2)}</span></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold' }}>SUBTOTAL</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>₹ {cartTotal.toFixed(2)}</span></div>
           {discountAmount > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span>DISCOUNT</span><span>-₹{discountAmount.toFixed(2)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>DISCOUNT</span><span>-₹ {discountAmount.toFixed(2)}</span></div>
           )}
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>SHIPPING</span><span>CALCULATED AT NEXT STEP</span></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>SHIPPING</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>CALCULATED AT NEXT STEP</span></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', borderTop: '1px solid #ff0000', paddingTop: '1rem' }}>
-            <span style={{ fontSize: '14px' }}>TOTAL</span><span style={{ fontSize: '14px' }}>₹{finalTotal.toFixed(2)}</span>
+            <span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>TOTAL</span><span style={{ fontSize: '18px', textAlign: 'right', fontWeight: 'bold' }}>₹{finalTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>

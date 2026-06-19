@@ -24,7 +24,7 @@ export default function App() {
     currentPage,
     navTo,
     selectedOrder,
-    selectedProduct, // Make sure to destructure this for the shop to work!
+    selectedProduct,
     isCheckout,
     isCartOpen,
     setIsCartOpen,
@@ -68,7 +68,7 @@ export default function App() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginTop: "0.75rem",
+            marginTop: "1rem",
           }}
         >
           <a
@@ -92,13 +92,13 @@ export default function App() {
           >
             press
           </a>
-          <a
+          {/* <a
             href="#"
             className={currentPage === "news" ? "active" : ""}
             onClick={(e) => { e.preventDefault(); navTo("news"); }}
           >
             news
-          </a>
+          </a> */}
           <a
             href="#"
             className={currentPage === "media" ? "active" : ""}
@@ -107,46 +107,11 @@ export default function App() {
             contact
           </a>
 
-          {isAuthenticated && (
-            <span style={{ marginRight: "0.75rem", color: navTextColor }}>
-              {user?.name || "Account"}
-            </span>
-          )}
-
-          <a
-            href="#"
-            className={`account ${currentPage === "login" ? "active" : ""}`}
-            style={{ color: navTextColor }}
-            onClick={(e) => {
-              e.preventDefault();
-              navTo(isAuthenticated ? "orders" : "login");
-            }}
-          >
-            {isAuthenticated ? "orders" : "login"}
-          </a>
-
-          {isAuthenticated && (
-            <a
-              href="#"
-              style={{ marginLeft: "0.5rem", color: navTextColor }}
-              onClick={(e) => {
-                e.preventDefault();
-                if (window.confirm("Logout?")) {
-                  logout();
-                  navTo("home");
-                }
-              }}
-            >
-              logout
-            </a>
-          )}
-
           <a
             href="#"
             className="samaan-link"
             style={{
               color: navTextColor,
-              textDecoration: "underline",
             }}
             onClick={(e) => {
               e.preventDefault();
@@ -154,6 +119,18 @@ export default function App() {
             }}
           >
             samaan<sup>({cartCount || 0})</sup>
+          </a>
+
+          <a
+            href="#"
+            className={`account ${currentPage === "login" ? "active" : ""}`}
+            style={{ textTransform: "lowercase", font: 'ibm-plex', color: navTextColor }}
+            onClick={(e) => {
+              e.preventDefault();
+              navTo(isAuthenticated ? "orders" : "login");
+            }}
+          >
+            {isAuthenticated ? user?.name : "login"}
           </a>
         </nav>
 

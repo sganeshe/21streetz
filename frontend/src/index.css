@@ -119,14 +119,17 @@ body {
   justify-content: space-between;
   letter-spacing: -6%;
   padding: 0 16px;
+  flex-wrap: wrap;
+  gap: 0rem;
 }
 
 .card__nav a {
   text-decoration: none;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 500;
   color: var(--black);
-  padding: 6px 14px;
+  padding: 0px 15px;
+  white-space: nowrap;
   transition: 0.2s;
 }
 
@@ -312,6 +315,8 @@ body {
 .press-product {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .low-stock-badge {
@@ -319,7 +324,7 @@ body {
   top: 10px;
   left: 10px;
   background-color: #000000;
-  color: #ff0000;
+  color: #f00;
   padding: 4px 8px;
   font-size: 10px;
   text-transform: uppercase;
@@ -650,32 +655,62 @@ body {
 }
 
 /* ============================================================
+   ORDERS PAGE
+============================================================ */
+.orders {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ============================================================
    CUSTOM RED SCROLLBARS
 ============================================================ */
 
 /* Target the specific scrollable containers */
 .checkout-page::-webkit-scrollbar,
+.orders::-webkit-scrollbar,
 .cart-items::-webkit-scrollbar {
+  width: 4px;
+}
+
+.productDetail::-webkit-scrollbar{
   width: 4px;
 }
 
 /* The track (background) of the scrollbar */
 .checkout-page::-webkit-scrollbar-track,
+.orders::-webkit-scrollbar-track,
 .cart-items::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.productDetail::-webkit-scrollbar-track{
   background: transparent;
 }
 
 /* The draggable thumb of the scrollbar */
 .checkout-page::-webkit-scrollbar-thumb,
+.orders::-webkit-scrollbar-thumb,
 .cart-items::-webkit-scrollbar-thumb {
   background: #ff0000;
   border-radius: 10px;
 }
 
+.productDetail::-webkit-scrollbar-thumb{
+  background: #fff;
+  border-radius: 10px;
+}
+
 /* Hover effect for the thumb */
 .checkout-page::-webkit-scrollbar-thumb:hover,
+.orders::-webkit-scrollbar-thumb:hover,
 .cart-items::-webkit-scrollbar-thumb:hover {
   background: #cc0000;
+}
+
+.productDetail::-webkit-scrollbar-thumb:hover{
+  background: #ccc;
 }
 
 /* Standard syntax for Firefox */

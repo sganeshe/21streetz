@@ -2,10 +2,13 @@ services:
   frontend:
     build: 
       context: .
-      dockerfile: ./dockerfiles/dockerfile.frontend
+      dockerfile: ./dockerfiles/dockerfile.frontend.dev
     container_name: frontend
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
 

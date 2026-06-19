@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { productService } from "../services/product.service";
 import { useAppContext } from "../context/AppContext";
 import { useCart } from "../context/CartContext";
 
 export default function ProductDetail() {
-  // FIXED: Replaced useParams and useNavigate with context states
   const { selectedProduct, setSelectedProduct, setIsCartOpen } = useAppContext();
   const { addToCart, cartCount } = useCart(); 
 
@@ -12,8 +11,13 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const pageRef = useRef(null);
+  
+  React.useEffect(() => {
+      pageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, []);
+
   useEffect(() => {
-    // If there is no selected product, don't try to fetch
     if (!selectedProduct) return;
 
     const loadProduct = async () => {
@@ -49,28 +53,20 @@ export default function ProductDetail() {
     product.sizes?.reduce((sum, s) => sum + s.countInStock, 0) || 0;
 
   return (
-    <div className="productDetail">
+    <div className="productDetail" ref={pageRef} style={{overflowY: "auto"}}>
       <div className="pd__top">
         <span
           className="back"
           style={{ cursor: "pointer" }}
           onClick={() => {
-            // FIXED: Close the product detail view by clearing the state
             setSelectedProduct(null);
           }}
         >
           back
         </span>
-        <span
-          className="pd__title"
-          style={{ cursor: "pointer", textDecoration: "underline" }}
-          onClick={() => setIsCartOpen(true)}
-        >
-          samaan<sup>({cartCount})</sup>
-        </span>
       </div>
       <div className="pd__content">
-        <div className="pd__left" style={{ position: "relative" }}>
+        <div className="pd__left" style={{ marginRight: "1rem", position: "relative" }}>
           {totalStock > 0 && totalStock <= 5 && (
             <div className="low-stock-badge">only few left</div>
           )}
@@ -80,7 +76,7 @@ export default function ProductDetail() {
           />
         </div>
         <div className="pd__right">
-          <h3>shop/{product.name.toLowerCase().replace(/ /g, "_")}</h3>
+          <h3 style={{ fontSize: "25px", marginTop: "-2.75rem" }}>shop/{product.name.toLowerCase().replace(/ /g, "_")}</h3>
           <p style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             size &nbsp;
             {product.sizes?.map((s) => (
@@ -93,10 +89,10 @@ export default function ProductDetail() {
                   cursor: s.countInStock === 0 ? "not-allowed" : "pointer",
                   color:
                     selectedSize === s.size
-                      ? "#ff0000"
+                      ? "#000"
                       : s.countInStock === 0
-                        ? "#444"
-                        : "#888",
+                        ? "#555"
+                        : "#fff",
                   textDecoration:
                     selectedSize === s.size
                       ? "underline"
