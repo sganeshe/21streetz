@@ -217,7 +217,7 @@ export default function CheckoutPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold' }}>SUBTOTAL</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>₹ {cartTotal.toFixed(2)}</span></div>
           {discountAmount > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>DISCOUNT</span><span>-₹ {discountAmount.toFixed(2)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>DISCOUNT</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>- ₹ {discountAmount.toFixed(2)}</span></div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>SHIPPING</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>CALCULATED AT NEXT STEP</span></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', borderTop: '1px solid #ff0000', paddingTop: '1rem' }}>
