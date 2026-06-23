@@ -138,7 +138,6 @@ export default function CheckoutPage() {
               <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>FULL NAME</label>
               <input type="text" style={inputStyle} required value={authForm.name} onChange={e => setAuthForm({...authForm, name: e.target.value})} /></div>
               </>
-              
             )}
             
             <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>EMAIL ADDRESS</label>
@@ -157,7 +156,6 @@ export default function CheckoutPage() {
                 onChange={e => setAuthForm({...authForm, phone: e.target.value})} 
               /></div>
               </>
-              
             )}
             
             <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PASSWORD</label>
@@ -229,16 +227,16 @@ export default function CheckoutPage() {
                   <img src={item.image || '/img/shirt3.png'} alt={item.name} style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ff0000' }} />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '4px' }}>
                     <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>ITEM</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.name}</span></div>
-                    <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>SIZE</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.size}</span></div>
+                    <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>SIZE</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.size}</span></div>
                     <div style={{ display: 'flex' }}>
-                      <span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>QTY</span>
+                      <span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>QTY</span>
                       <span style={{ display: 'flex', gap: '16px' }}>
                         <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty + 1)}>+</span>
                         <span style={{ textAlign: 'left', fontSize: '18px', opacity: 1 }}>{item.qty}</span>
                         <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty - 1)}>-</span>
                       </span>
                     </div>
-                    <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>PRICE</span><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>₹{(item.price * item.qty).toFixed(2)}</span></div>
+                    <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>PRICE</span><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>₹{(item.price * item.qty).toFixed(2)}</span></div>
                   </div>
                 </div>
               ))}
@@ -259,44 +257,16 @@ export default function CheckoutPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold' }}>SUBTOTAL</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>₹ {cartTotal.toFixed(2)}</span></div>
               {discountAmount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>DISCOUNT</span><span>-₹ {discountAmount.toFixed(2)}</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>DISCOUNT</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>- ₹ {discountAmount.toFixed(2)}</span></div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>SHIPPING</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>CALCULATED AT NEXT STEP</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', borderTop: '1px solid #ff0000', paddingTop: '1rem' }}>
                 <span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>TOTAL</span><span style={{ fontSize: '18px', textAlign: 'right', fontWeight: 'bold' }}>₹{finalTotal.toFixed(2)}</span>
               </div>
             </div>
-<<<<<<< HEAD
-          ))}
-        </div>
-
-        {/* COUPON SECTION */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '2rem' }}>
-          <input 
-            type="text" 
-            placeholder="PROMO CODE" 
-            style={{ ...inputStyle, fontSize: '15px', width: '100%', textTransform: 'uppercase' }} 
-            value={couponCode} 
-            onChange={e => setCouponCode(e.target.value)} 
-          />
-          <button onClick={handleApplyCoupon} style={{ ...inputStyle, width: 'auto', cursor: 'pointer' }}>APPLY</button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold' }}>SUBTOTAL</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>₹ {cartTotal.toFixed(2)}</span></div>
-          {discountAmount > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>DISCOUNT</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>- ₹ {discountAmount.toFixed(2)}</span></div>
-          )}
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>SHIPPING</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>CALCULATED AT NEXT STEP</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', borderTop: '1px solid #ff0000', paddingTop: '1rem' }}>
-            <span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>TOTAL</span><span style={{ fontSize: '18px', textAlign: 'right', fontWeight: 'bold' }}>₹{finalTotal.toFixed(2)}</span>
-          </div>
-        </div>
-=======
           </>
         )}
->>>>>>> 5d9992d17995e0c6eb6ed04fc0cb6abddb87b392
       </div>
     </div>
   );
-}
+};
