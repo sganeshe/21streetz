@@ -182,3 +182,68 @@
     border-right-color: var(--border);
   }
 }
+
+/* =========================================
+   MOBILE RESPONSIVENESS (Max Width: 768px)
+   ========================================= */
+
+@media (max-width: 768px) {
+  /* 1. Scale down the main scene and card */
+  .scene {
+    padding: 10px;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .scene__card {
+    width: 100% !important;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 12px; /* Slightly smaller border radius for mobile */
+    height: auto;
+    min-height: 95vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 2. Fix the Navigation bar for smaller screens */
+  .card__nav {
+    flex-wrap: wrap;
+    justify-content: center !important;
+    gap: 15px;
+    padding: 10px;
+    margin-top: 0 !important;
+  }
+
+  .card__nav a {
+    font-size: 14px; /* Smaller text */
+    margin: 0 5px;
+  }
+
+  /* 3. Adjust the main content body padding */
+  .card__body {
+    padding: 15px 10px;
+    flex-grow: 1;
+    overflow-x: hidden;
+  }
+
+  /* 4. Make the ticker text smaller so it doesn't look overwhelming */
+  .card__ticker {
+    padding: 8px 0;
+  }
+
+  .ticker__item {
+    font-size: 12px;
+  }
+}
+
+/* For very small devices (like iPhone SE) */
+@media (max-width: 480px) {
+  .card__nav {
+    gap: 10px;
+  }
+  
+  .card__nav a {
+    font-size: 12px;
+  }
+}

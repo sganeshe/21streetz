@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "./context/AuthContext";
 import { useAppContext } from "./context/AppContext";
 import { useCart } from "./context/CartContext";
@@ -34,10 +34,17 @@ export default function App() {
   const { cartCount } = useCart();
   const { isAuthenticated, logout, user } = useAuth();
 
-  // Dynamic Color Helper for your navbar links
+  // 1. Add State for the mobile menu toggle
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const navTextColor = currentPage === "home" ? "#000000" : "#ff0000";
 
-  // Reverting back to your seamless state-based router
+  // Helper function to close menu when a link is clicked on mobile
+  const handleNavClick = (page) => {
+    navTo(page);
+    setIsMobileMenuOpen(false);
+  };
+
   const renderContent = () => {
     if (isCheckout) return <CheckoutPage />;
     if (selectedOrder) return <OrderDetail />;
@@ -63,77 +70,81 @@ export default function App() {
       <div className="scene__dots"></div>
 
       <div className={`scene__card ${currentPage !== "home" ? "is-inner" : ""}`}>
-        <nav
-          className="card__nav"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: "1rem",
-          }}
-        >
-          <a
-            href="#"
-            className={currentPage === "about" ? "active" : ""}
-            onClick={(e) => { e.preventDefault(); navTo("about"); }}
+        
+        {/* 2. Updated Navigation Structure for Mobile */}
+        <nav className="card__nav">
+          
+          {/* Hamburger Menu Button (Only visible on Mobile via CSS) */}
+          <button 
+            className="mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{ color: navTextColor, marginTop: "1rem", fontSize: "1.2rem", background: "none", border: "none", cursor: "pointer" }}
           >
-            <HyperText text="about" />
-          </a>
-          <a
-            href="#"
-            className={currentPage === "shop" ? "active" : ""}
-            onClick={(e) => { e.preventDefault(); navTo("shop"); }}
-          >
-            <HyperText text="shop" />
-          </a>
-          <a
-            href="#"
-            className={currentPage === "press" ? "active" : ""}
-            onClick={(e) => { e.preventDefault(); navTo("press"); }}
-          >
-            <HyperText text="press" />
-          </a>
-          {/* <a
-            href="#"
-            className={currentPage === "news" ? "active" : ""}
-            onClick={(e) => { e.preventDefault(); navTo("news"); }}
-          >
-            news
-          </a> */}
-          <a
-            href="#"
-            className={currentPage === "media" ? "active" : ""}
-            onClick={(e) => { e.preventDefault(); navTo("media"); }}
-          >
-            <HyperText text="media" />
-          </a>
+            {isMobileMenuOpen ? "✕" : "☰"} menu
+          </button>
 
-          <a
-            href="#"
-            className="samaan-link"
-            style={{
-              color: navTextColor,
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              setIsCartOpen(true);
+          {/* Navigation Links Container */}
+          <div 
+            className={`nav-links ${isMobileMenuOpen ? "open" : ""}`}
+            style={{ 
+              "--mobile-menu-bg": currentPage === "home" ? "rgba(255, 0, 0, 0.95)" : "rgba(55, 55, 55, 0.95)" 
             }}
           >
-            <HyperText text="samaan" />
-            <sup>({cartCount || 0})</sup>
-          </a>
+            <a
+              href="#"
+              className={currentPage === "about" ? "active" : ""}
+              onClick={(e) => { e.preventDefault(); handleNavClick("about"); }}
+            >
+              <HyperText text="about" />
+            </a>
+            <a
+              href="#"
+              className={currentPage === "shop" ? "active" : ""}
+              onClick={(e) => { e.preventDefault(); handleNavClick("shop"); }}
+            >
+              <HyperText text="shop" />
+            </a>
+            <a
+              href="#"
+              className={currentPage === "press" ? "active" : ""}
+              onClick={(e) => { e.preventDefault(); handleNavClick("press"); }}
+            >
+              <HyperText text="press" />
+            </a>
+            
+            <a
+              href="#"
+              className={currentPage === "media" ? "active" : ""}
+              onClick={(e) => { e.preventDefault(); handleNavClick("media"); }}
+            >
+              <HyperText text="contact" />
+            </a>
 
-          <a
-            href="#"
-            className={`account ${currentPage === "login" ? "active" : ""}`}
-            style={{ textTransform: "lowercase", font: 'ibm-plex', color: navTextColor }}
-            onClick={(e) => {
-              e.preventDefault();
-              navTo(isAuthenticated ? "orders" : "login");
-            }}
-          >
-            <HyperText text={isAuthenticated ? user?.name : "login"} />
-          </a>
+            <a
+              href="#"
+              className="samaan-link"
+              style={{ color: navTextColor }}
+              onClick={(e) => {
+                e.preventDefault();
+                setIsCartOpen(true);
+                setIsMobileMenuOpen(false); // Close menu when cart opens
+              }}
+            >
+              <HyperText text="samaan" /><sup>({cartCount || 0})</sup>
+            </a>
+
+            <a
+              href="#"
+              className={`account ${currentPage === "login" ? "active" : ""}`}
+              style={{ textTransform: "lowercase", font: 'ibm-plex', color: navTextColor }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick(isAuthenticated ? "orders" : "login");
+              }}
+            >
+              <HyperText text={isAuthenticated ? user?.name : "login"} />
+            </a>
+          </div>
         </nav>
 
         <div className="card__body" id="content">

@@ -15,11 +15,6 @@ export default function Login() {
     pageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
-  const inputStyle = {
-    background: "transparent", border: "1px solid #ff0000", color: "#ff0000", padding: "10px",
-    fontFamily: "monospace", fontSize: "11px", outline: "none", width: "100%", boxSizing: "border-box", height: "38px"
-  };
-
   const submit = async (e) => {
     e.preventDefault();
     try {
@@ -31,52 +26,56 @@ export default function Login() {
   };
 
   return (
-    <div 
-      ref={pageRef}
-      className="login-page" 
-      style={{ 
-        display: "flex", 
-        flexDirection: "column", 
-        alignItems: "stretch", 
-        justifyContent: "flex-start", 
-        height: "100%",
-        padding: "1rem", 
-        color: "#ff0000", 
-        fontFamily: "monospace",
-        overflowY: "auto"
-      }}
-    >
-      <div style={{ marginTop: "0rem", width: "100%" }}>
+    <div ref={pageRef} className="auth-page">
+      <div className="auth-container">
         
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem", borderBottom: "2px solid rgba(255,0,0,0.3)", paddingBottom: "0.5rem" }}>
-          <h3 style={{ fontSize: "25px", fontWeight: "bold", textTransform: "lowercase", margin: 0 }}>Login To Continue</h3>
-          <span onClick={() => navTo("shop")} style={{ cursor: "pointer", fontSize: "18px", opacity: 0.8 }}>[ back_to_shop ]</span>
+        <div className="auth-header">
+          <h3>Login To Continue</h3>
+          <span onClick={() => navTo("shop")}>[ back_to_shop ]</span>
         </div>
         
-        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <form onSubmit={submit} className="auth-form">
           
-          {error && <div style={{ color: "#ff0000", border: "1px solid #ff0000", padding: "8px", fontSize: "20px" }}>[ERROR] {error}</div>}
+          {error && <div className="auth-error">[ERROR] {error}</div>}
           
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ textAlign: "left", fontSize: "20px", textTransform: "uppercase" }}>Email Address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{...inputStyle, fontSize: "20px"}} required />
+          <div className="auth-input-group">
+            <label>Email Address</label>
+            <input 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              className="auth-input" 
+              required 
+            />
           </div>
           
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ textAlign: "left", fontSize: "20px", textTransform: "uppercase" }}>Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{...inputStyle, fontSize: "20px"}} required />
+          <div className="auth-input-group">
+            <label>Password</label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              className="auth-input" 
+              required 
+            />
           </div>
           
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
-            <button type="submit" style={{ ...inputStyle, fontSize: "15px", background: "#ff0000", color: "#000", border: "none", cursor: "pointer", fontWeight: "bold" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <button type="submit" className="auth-submit">
               EXECUTE_LOGIN
             </button>
             
-            <p style={{ fontSize: "20px", margin: "1rem", textAlign: "center" }}>
+            <p style={{ fontSize: "16px", marginTop: "1rem", textAlign: "center" }}>
               <span style={{ opacity: 0.7 }}>Don't have an account? </span>
-              <span onClick={() => navTo("signup")} style={{ cursor: "pointer", textDecoration: "underline" }}>Sign up here</span>
+              <span 
+                onClick={() => navTo("signup")} 
+                style={{ cursor: "pointer", textDecoration: "underline", fontWeight: "bold" }}
+              >
+                Sign up here
+              </span>
             </p>
           </div>
+          
         </form>
       </div>
     </div>

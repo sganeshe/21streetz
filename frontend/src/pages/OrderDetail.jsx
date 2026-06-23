@@ -23,8 +23,8 @@ export default function OrderDetail({ orderId: propOrderId, onClose }) {
     load();
   }, [orderId]);
 
-  if (loading) return <div style={{ padding: "2rem", color: "#ff0000", fontFamily: "monospace" }}>Retrieving data...</div>;
-  if (!order) return <div style={{ padding: "2rem", color: "#ff0000", fontFamily: "monospace" }}>[ERROR] Order not found</div>;
+  if (loading) return <div className="order-detail-container">Retrieving data...</div>;
+  if (!order) return <div className="order-detail-container">[ERROR] Order not found</div>;
 
   const handleClose = () => {
     if (onClose) return onClose();
@@ -32,51 +32,59 @@ export default function OrderDetail({ orderId: propOrderId, onClose }) {
   };
 
   return (
-    <div style={{ position:"relative", padding: "2rem", color: "#ff0000", fontFamily: "monospace", fontSize: "13px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid #ff0000", paddingBottom: "1rem", marginBottom: "2rem" }}>
-        <div>
-          <h3 style={{ fontSize: "20px", textAlign: "left", fontWeight: "normal", margin: "0 0 8px 0" }}>RECEIPT</h3>
-          <div style={{ fontSize: "15px", textAlign: "left", opacity: 0.7 }}>ID: {order._id}</div>
-          <div style={{ fontSize: "15px", textAlign: "left", opacity: 0.7 }}>DATE: {new Date(order.createdAt).toLocaleDateString()}</div>
+    <div className="order-detail-container">
+      
+      {/* Header section */}
+      <div className="od-header">
+        <div className="od-header-info">
+          <h3>RECEIPT</h3>
+          <div className="od-meta">ID: {order._id}</div>
+          <div className="od-meta">DATE: {new Date(order.createdAt).toLocaleDateString()}</div>
         </div>
-        <span onClick={handleClose} style={{ fontSize: "15px", cursor: "pointer", textDecoration: "underline" }}>close [x]</span>
+        <span onClick={handleClose} className="od-close">close [x]</span>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", marginBottom: "2rem" }}>
+      {/* Items section */}
+      <div className="od-items">
         {order.orderItems.map((it, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span style={{fontSize: "15px", textAlign: "left", textTransform: "uppercase" }}>{it.name}</span>
-              <span style={{ fontSize: "13px", textAlign: "left", opacity: 0.7 }}>SIZE: {it.size} | QTY: {it.qty}</span>
+          <div key={i} className="od-item">
+            <div className="od-item-info">
+              <span className="od-item-name">{it.name}</span>
+              <span className="od-item-meta">SIZE: {it.size} | QTY: {it.qty}</span>
             </div>
-            <span style={{ fontSize: "15px", textAlign: "right" }}>₹{(it.price * it.qty).toFixed(2)}</span>
+            <span className="od-item-price">₹{(it.price * it.qty).toFixed(2)}</span>
           </div>
         ))}
       </div>
 
-      <div style={{ borderTop: "1px dashed #ff0000", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "8px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{fontSize: "15px", textAlign: "left", opacity: 0.7 }}>STATUS</span>
-          <span style={{ fontSize: "15px", textAlign: "right" }}>{order.isPaid ? "PAID" : "PENDING"}</span>
+      {/* Summary section */}
+      <div className="od-summary">
+        <div className="od-summary-row">
+          <span className="od-summary-label">STATUS</span>
+          <span className="od-summary-value">{order.isPaid ? "PAID" : "PENDING"}</span>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontSize: "15px", textAlign: "left", opacity: 0.7 }}>SHIPPING</span>
-          <span style={{ fontSize: "15px", textAlign: "right" }}>{order.isDelivered ? "DELIVERED" : "PROCESSING"}</span>
+        <div className="od-summary-row">
+          <span className="od-summary-label">SHIPPING</span>
+          <span className="od-summary-value">{order.isDelivered ? "DELIVERED" : "PROCESSING"}</span>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.5rem", borderTop: "1px solid #ff0000", paddingTop: "1rem", fontSize: "13px" }}>
-          <span style={{ fontSize: "15px", textAlign: "left" }}>TOTAL</span>
-          <span style={{ fontSize: "15px", textAlign: "right" }}>₹{order.totalPrice.toFixed(2)}</span>
+        <div className="od-summary-row od-total-row">
+          <span className="od-summary-label" style={{ opacity: 1 }}>TOTAL</span>
+          <span className="od-summary-value">₹{order.totalPrice.toFixed(2)}</span>
         </div>
       </div>
       
+      {/* Shipping Address section */}
       {order.shippingAddress && (
-        <div style={{ display: "flex", flexDirection: "column", marginTop: "1rem", borderTop: "1px solid #bbb", paddingTop: "1rem" }}>
-          <span style={{ fontSize: "15px", textAlign: "left", opacity: 0.7, marginBottom: "-1rem" }}>SHIPPING TO:</span>
-          <span style={{ fontSize: "15px", textAlign: "right", marginBottom: "-1rem" }}>{order.shippingAddress.address}</span><br></br>
-          <span style={{ fontSize: "15px", textAlign: "right", marginBottom: "-1rem" }}>{order.shippingAddress.city}, {order.shippingAddress.postalCode}</span><br></br>
-          <span style={{ fontSize: "15px", textAlign: "right" }}>{order.shippingAddress.country}</span>
+        <div className="od-shipping">
+          <span className="od-shipping-label">SHIPPING TO:</span>
+          <div className="od-shipping-address">
+            <div>{order.shippingAddress.address}</div>
+            <div>{order.shippingAddress.city}, {order.shippingAddress.postalCode}</div>
+            <div>{order.shippingAddress.country}</div>
+          </div>
         </div>
       )}
+      
     </div>
   );
 }

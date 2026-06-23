@@ -24,7 +24,6 @@ export default function ProductDetail() {
 
     const loadProduct = async () => {
       try {
-        // FIXED: Using selectedProduct instead of id
         const data = await productService.getById(selectedProduct);
         setProduct(data.product);
         if (data.product.sizes?.length > 0) {
@@ -37,7 +36,7 @@ export default function ProductDetail() {
       }
     };
     loadProduct();
-  }, [selectedProduct]); // Trigger when selectedProduct changes
+  }, [selectedProduct]);
 
   if (loading)
     return (
@@ -55,11 +54,10 @@ export default function ProductDetail() {
     product.sizes?.reduce((sum, s) => sum + s.countInStock, 0) || 0;
 
   return (
-    <div className="productDetail" ref={pageRef} style={{overflowY: "auto"}}>
+    <div className="productDetail" ref={pageRef}>
       <div className="pd__top">
         <span
           className="back"
-          style={{ cursor: "pointer" }}
           onClick={() => {
             setSelectedProduct(null);
           }}
@@ -68,7 +66,7 @@ export default function ProductDetail() {
         </span>
       </div>
       <div className="pd__content">
-        <div className="pd__left" style={{ marginRight: "1rem", position: "relative" }}>
+        <div className="pd__left">
           {totalStock > 0 && totalStock <= 5 && (
             <div className="low-stock-badge">only few left</div>
           )}
@@ -78,7 +76,7 @@ export default function ProductDetail() {
           />
         </div>
         <div className="pd__right">
-          <h3 style={{ fontSize: "25px", marginTop: "-2.75rem" }}>shop/{product.name.toLowerCase().replace(/ /g, "_")}</h3>
+          <h3>shop/{product.name.toLowerCase().replace(/ /g, "_")}</h3>
           <p style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             size &nbsp;
             {product.sizes?.map((s) => (
@@ -111,7 +109,6 @@ export default function ProductDetail() {
             <div
               className="pd__description-header"
               onClick={() => setIsDescriptionOpen((open) => !open)}
-              style={{ cursor: "pointer" }}
             >
               <span>jaankari</span>
               <img
@@ -128,7 +125,6 @@ export default function ProductDetail() {
             <div
               className="acc__item"
               onClick={() => setIsSizeChartOpen((open) => !open)}
-              style={{ cursor: "pointer" }}
             >
               <span>size chart</span>
               <img
@@ -150,7 +146,6 @@ export default function ProductDetail() {
           </div>
           <div
             className="pd__plus"
-            style={{ cursor: "pointer" }}
             onClick={() => {
               if (totalStock > 0) addToCart(product, 1, selectedSize);
             }}
