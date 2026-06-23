@@ -12,6 +12,8 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  
+  const [isAdding, setIsAdding] = useState(false);
 
   const pageRef = useRef(null);
   
@@ -27,7 +29,7 @@ export default function ProductDetail() {
         const data = await productService.getById(selectedProduct);
         setProduct(data.product);
         if (data.product.sizes?.length > 0) {
-          setSelectedSize(data.product.sizes[0].size); // Auto-select first size
+          setSelectedSize(data.product.sizes[0].size);
         }
       } catch (error) {
         console.error("Failed to load product", error);
@@ -99,6 +101,7 @@ export default function ProductDetail() {
                       : s.countInStock === 0
                         ? "line-through"
                         : "none",
+                  transition: "color 0.2s ease",
                 }}
               >
                 {s.size}
@@ -144,14 +147,29 @@ export default function ProductDetail() {
               </div>
             )}
           </div>
+          
           <div
-            className="pd__plus"
+            className={`pd__plus ${isAdding ? "btn-added-success" : ""}`}
+            style={{ 
+              display: "flex", 
+              justifyContent: "center", 
+              alignItems: "center", 
+              transition: "background-color 0.4s ease",
+              cursor: isAdding ? "default" : "pointer"
+            }}
             onClick={() => {
-              if (totalStock > 0) addToCart(product, 1, selectedSize);
+              if (totalStock > 0 && !isAdding) {
+                addToCart(product, 1, selectedSize);
+                setIsAdding(true);
+                setTimeout(() => setIsAdding(false), 1200);
+              }
             }}
           >
-            +
+            <span className={isAdding ? "icon-fade-enter" : ""} style={{ alignItems: "left", transition: "opacity 0.4s ease" }}>
+              {isAdding ? "✓" : "+"}
+            </span>
           </div>
+
         </div>
       </div>
     </div>

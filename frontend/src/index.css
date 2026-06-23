@@ -588,6 +588,7 @@ body {
 .pd__plus {
   font-size: 34px;
   margin-bottom: 30px;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -867,7 +868,7 @@ body {
 
 /* Target the specific scrollable containers */
 .checkout-page::-webkit-scrollbar,
-.orders::-webkit-scrollbar,
+.orders-page::-webkit-scrollbar,
 .cart-items::-webkit-scrollbar,
 .login-page::-webkit-scrollbar,
 .signup-page::-webkit-scrollbar {
@@ -880,7 +881,7 @@ body {
 
 /* The track (background) of the scrollbar */
 .checkout-page::-webkit-scrollbar-track,
-.orders::-webkit-scrollbar-track,
+.orders-page::-webkit-scrollbar-track,
 .signup-page::-webkit-scrollbar-track,
 .login-page::-webkit-scrollbar-track,
 .cart-items::-webkit-scrollbar-track {
@@ -893,7 +894,7 @@ body {
 
 /* The draggable thumb of the scrollbar */
 .checkout-page::-webkit-scrollbar-thumb,
-.orders::-webkit-scrollbar-thumb,
+.orders-page::-webkit-scrollbar-thumb,
 .signup-page::-webkit-scrollbar-thumb,
 .login-page::-webkit-scrollbar-thumb,
 .cart-items::-webkit-scrollbar-thumb {
@@ -908,7 +909,7 @@ body {
 
 /* Hover effect for the thumb */
 .checkout-page::-webkit-scrollbar-thumb:hover,
-.orders::-webkit-scrollbar-thumb:hover,
+.orders-page::-webkit-scrollbar-thumb:hover,
 .signup-page::-webkit-scrollbar-thumb:hover,
 .login-page::-webkit-scrollbar-thumb:hover,
 .cart-items::-webkit-scrollbar-thumb:hover {
@@ -1027,7 +1028,7 @@ body {
     width: calc(100% - 20px);
     
     position: absolute; 
-    top: 50px; 
+    top: 5rem; 
     left: 10px;
     
     /* 1. Pull the color from React, fallback to red if it fails */
@@ -1287,7 +1288,6 @@ body {
 .btn-hypertext:hover {
   background: #ff0000 !important;
   color: #000 !important;
-  animation: hyper-strobe 0.2s infinite;
 }
 
 @keyframes hyper-strobe {
@@ -1752,4 +1752,72 @@ body {
   .od-shipping-address {
     text-align: left; /* Flips the address to the left on small phones so it is easier to read */
   }
+}
+/* =========================================
+   CHECKOUT PAGE LAYOUT
+   ========================================= */
+.checkout-layout {
+  display: flex;
+  flex-wrap: nowrap; /* Keeps them side-by-side on desktop */
+  gap: 3rem;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow: hidden; /* Parent does NOT scroll on desktop */
+}
+
+.checkout-col-left {
+  flex: 1;
+  min-width: 300px;
+  height: 100%;
+  overflow-y: auto; /* Independent scroll for Order Summary */
+  padding-right: 1rem;
+}
+
+.checkout-col-right {
+  flex: 1.3;
+  min-width: 300px;
+  height: 100%;
+  overflow-y: auto; /* Independent scroll for Shipping Form */
+  padding-right: 1rem;
+}
+
+/* --- Mobile Overrides --- */
+@media (max-width: 768px) {
+  .checkout-layout {
+    flex-direction: column; /* Stacks them vertically */
+    overflow-y: auto; /* 🔑 Parent TAKES OVER scrolling on mobile! */
+    padding: 1.5rem 1rem;
+    gap: 2rem;
+  }
+
+  .checkout-col-left, 
+  .checkout-col-right {
+    flex: none;
+    width: 100%;
+    height: auto; /* 🔑 Removes the strict height limit */
+    overflow-y: visible; /* 🔑 Disables the independent scrollbars */
+    padding-right: 0;
+  }
+}
+
+/* =========================================
+   CART ADDITION FEEDBACK (CLEAN & ELEGANT)
+   ========================================= */
+.icon-fade-enter {
+  display: inline-block;
+  /* Smooth, high-end ease out */
+  animation: elegant-fade-in 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) fade-out 0.8s;
+}
+
+@keyframes elegant-fade-in {
+  0% { opacity: 0; transform: scale(0.8) translateY(2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.btn-added-success {
+  /* A very subtle background tint instead of a harsh flash */
+  background-color: rgba(255, 0, 0, 0.05) !important;
+  pointer-events: none; /* Prevents spam clicking */
 }

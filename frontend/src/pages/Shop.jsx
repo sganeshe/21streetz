@@ -6,6 +6,8 @@ import { useCart } from "../context/CartContext";
 export default function Shop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [addingId, setAddingId] = useState(null);
 
   const { setSelectedProduct } = useAppContext();
   const { addToCart } = useCart();
@@ -57,13 +59,12 @@ export default function Shop() {
                   alt={product.name}
                   style={{ 
                     opacity: isSoldOut ? 0.3 : 1, 
-                    transition: "opacity 0.3s ease-in-out" 
+                    transition: "opacity 0.4s ease-in-out" 
                   }}
                 />
               </div>
               <div className="product__info">
                 <div className="left">
-                  {/* Clean class names that our CSS Grid controls perfectly */}
                   <p className="product-title">{product.name}</p>
                   <span className="product-price">₹{product.price}</span>
                 </div>
@@ -71,17 +72,24 @@ export default function Shop() {
                   className="right"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!isSoldOut) {
+                    if (!isSoldOut && addingId !== product._id) {
                       addToCart(product, 1, product.sizes?.[0]?.size || "M");
+                      
+                      setAddingId(product._id);
+                      setTimeout(() => setAddingId(null), 1200); // Lingers elegantly
                     }
                   }}
                 >
-                  <img
-                    src="/img/plus.png"
-                    alt="add"
-                    className="add-btn-img"
-                    style={{ opacity: isSoldOut ? 0.3 : 1 }}
-                  />
+                  {addingId === product._id ? (
+                    <span className="icon-fade-enter" style={{ fontSize: "16px", color: "#ff0000" }}>✓</span>
+                  ) : (
+                    <img
+                      src="/img/plus.png"
+                      alt="add"
+                      className="add-btn-img"
+                      style={{ opacity: isSoldOut ? 0.3 : 1, transition: "opacity 0.3s ease" }}
+                    />
+                  )}
                 </div>
               </div>
               <div className="product__line"></div>
