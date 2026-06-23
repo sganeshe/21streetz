@@ -100,7 +100,7 @@ module.exports.validateCoupon = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Invalid or expired coupon code" });
     }
 
-    // Only send back the data the frontend needs to calculate the discount
+  
     res.status(200).json({
       success: true,
       coupon: {

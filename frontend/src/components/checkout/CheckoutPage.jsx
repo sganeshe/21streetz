@@ -21,6 +21,8 @@ export default function CheckoutPage() {
 
   const [couponCode, setCouponCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
+  // Store the applied coupon object so we can recalculate when cart changes
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   // --- STYLES ---
   const inputStyle = {
@@ -35,6 +37,35 @@ export default function CheckoutPage() {
   React.useEffect(() => {
       pageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, []);
+
+  // --- SHARED DISCOUNT CALCULATION (mirrors backend logic exactly) ---
+  const calcDiscount = (coupon, subTotal) => {
+    let discountAmount = 0;
+    if (coupon.discountType === "PERCENTAGE") {
+      let rawDiscount = (subTotal * coupon.discountValue) / 100;
+      if (coupon.maxDiscountAmount) {
+        discountAmount = Math.min(rawDiscount, coupon.maxDiscountAmount);
+      } else {
+        discountAmount = rawDiscount;
+      }
+    } else if (coupon.discountType === "FIXED") {
+      discountAmount = coupon.discountValue;
+    }
+    return discountAmount;
+  };
+
+  // --- RECALCULATE DISCOUNT DYNAMICALLY WHEN cartTotal CHANGES ---
+  useEffect(() => {
+    // If cart is empty, clear coupon state
+    if (cartItems.length === 0 || cartTotal === 0) {
+      setDiscountAmount(0);
+      setAppliedCoupon(null);
+      setCouponCode('');
+      return;
+    }
+    if (!appliedCoupon) return;
+    setDiscountAmount(calcDiscount(appliedCoupon, cartTotal));
+  }, [cartTotal, cartItems.length, appliedCoupon]);
 
   // --- HANDLERS ---
   const handleAuthSubmit = async (e) => {
@@ -51,36 +82,26 @@ export default function CheckoutPage() {
   };
 
   const handleApplyCoupon = async () => {
-  if (!couponCode) return;
+    if (!couponCode) return;
 
-  try {
-    const response = await couponService.validate(couponCode);
-    const coupon = response.coupon;
-    
-    let calculatedDiscount = 0;
+    try {
+      const response = await couponService.validate(couponCode);
+      const coupon = response.coupon;
 
-    if (coupon.discountType === "PERCENTAGE") {
-      let rawDiscount = (cartTotal * coupon.discountValue) / 100;
-      
-      if (coupon.maxDiscountAmount) {
-        calculatedDiscount = Math.min(rawDiscount, coupon.maxDiscountAmount);
-      } else {
-        calculatedDiscount = rawDiscount;
-      }
-    } else if (coupon.discountType === "FIXED") {
-      calculatedDiscount = coupon.discountValue;
+      const calculatedDiscount = calcDiscount(coupon, cartTotal);
+
+      setAppliedCoupon(coupon); // Store coupon for dynamic recalculation
+      setDiscountAmount(calculatedDiscount);
+      alert(`Coupon applied! You saved ₹${calculatedDiscount.toFixed(2)}`);
+
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Invalid or expired coupon";
+      alert(errorMsg);
+      setDiscountAmount(0);
+      setAppliedCoupon(null);
+      setCouponCode(''); 
     }
-
-    setDiscountAmount(calculatedDiscount);
-    alert(`Coupon applied! You saved ₹${calculatedDiscount.toFixed(2)}`);
-
-  } catch (err) {
-    const errorMsg = err.response?.data?.message || "Invalid or expired coupon";
-    alert(errorMsg);
-    setDiscountAmount(0);
-    setCouponCode(''); 
-  }
-};
+  };
 
   const handlePaymentSubmit = () => {
     const orderPayload = {
@@ -173,7 +194,19 @@ export default function CheckoutPage() {
               <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>ZIP / POSTAL CODE</label><input type="text" style={{...inputStyle, fontSize: "15px"}} onChange={e => setShippingForm({...shippingForm, postalCode: e.target.value})} /></div>
             </div>
             
-            <button onClick={handlePaymentSubmit} style={{ ...inputStyle, fontSize: '15px', marginTop: '1rem', cursor: 'pointer', background: '#ff0000', color: '#000', border: 'none' }}>CONTINUE TO PAYMENT</button>
+            <button
+              onClick={handlePaymentSubmit}
+              disabled={cartItems.length === 0}
+              style={{
+                ...inputStyle,
+                fontSize: '15px',
+                marginTop: '1rem',
+                border: 'none',
+                ...(cartItems.length === 0
+                  ? { background: '#555', color: '#999', cursor: 'not-allowed', opacity: 0.6 }
+                  : { background: '#ff0000', color: '#000', cursor: 'pointer' })
+              }}
+            >CONTINUE TO PAYMENT</button>
           </div>
         )}
       </div>
@@ -181,24 +214,59 @@ export default function CheckoutPage() {
       {/* RIGHT COLUMN: ORDER SUMMARY */}
       <div style={{ flex: '1', fontSize: '11px', minWidth: '300px' }}>
         <h3 style={{...headerStyle, marginBottom: "1rem", textAlign: "left", fontSize: "20px", textTransform: "uppercase"}}>ORDER SUMMARY</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
-          {cartItems.map((item, index) => (
-            <div key={index} style={{ display: 'flex', gap: '1rem' }}>
-              <img src={item.image || '/img/shirt3.png'} alt={item.name} style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ff0000' }} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '4px' }}>
-                <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>ITEM</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.name}</span></div>
-                <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>SIZE</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.size}</span></div>
-                <div style={{ display: 'flex' }}>
-                  <span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>QTY</span>
-                  <span style={{ display: 'flex', gap: '16px' }}>
-                    <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty + 1)}>+</span>
-                    <span style={{ textAlign: 'left', fontSize: '18px', opacity: 1 }}>{item.qty}</span>
-                    <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty - 1)}>-</span>
-                  </span>
+
+        {cartItems.length === 0 ? (
+          // --- EMPTY CART STATE ---
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', height: '150px', border: '1px solid rgba(255,0,0,0.3)', fontSize: '18px', letterSpacing: '2px' }}>
+            <span style={{ opacity: 0.6 }}>NO ITEM IN THE CART</span>
+            <span onClick={() => navTo("shop")} style={{ cursor: 'pointer', fontSize: '13px', textDecoration: 'underline', opacity: 0.8 }}>[ GO TO SHOP TO ADD ITEMS ]</span>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
+              {cartItems.map((item, index) => (
+                <div key={index} style={{ display: 'flex', gap: '1rem' }}>
+                  <img src={item.image || '/img/shirt3.png'} alt={item.name} style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ff0000' }} />
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '4px' }}>
+                    <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1 }}>ITEM</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.name}</span></div>
+                    <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>SIZE</span><span style={{textAlign: 'left', fontSize: '18px', opacity: 1}}>{item.size}</span></div>
+                    <div style={{ display: 'flex' }}>
+                      <span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>QTY</span>
+                      <span style={{ display: 'flex', gap: '16px' }}>
+                        <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty + 1)}>+</span>
+                        <span style={{ textAlign: 'left', fontSize: '18px', opacity: 1 }}>{item.qty}</span>
+                        <span style={{ cursor: 'pointer', textAlign: 'left', fontSize: '18px', opacity: 1 }} onClick={() => updateQuantity(item.product, item.size, item.qty - 1)}>-</span>
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>PRICE</span><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>₹{(item.price * item.qty).toFixed(2)}</span></div>
+                  </div>
                 </div>
-                <div style={{ display: 'flex' }}><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>PRICE</span><span style={{ textAlign: 'left', fontSize: '18px', width: '70px', opacity: 1  }}>₹{(item.price * item.qty).toFixed(2)}</span></div>
+              ))}
+            </div>
+
+            {/* COUPON SECTION */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '2rem' }}>
+              <input 
+                type="text" 
+                placeholder="PROMO CODE" 
+                style={{ ...inputStyle, fontSize: '15px', width: '100%', textTransform: 'uppercase' }} 
+                value={couponCode} 
+                onChange={e => setCouponCode(e.target.value)} 
+              />
+              <button onClick={handleApplyCoupon} style={{ ...inputStyle, width: 'auto', cursor: 'pointer' }}>APPLY</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold' }}>SUBTOTAL</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>₹ {cartTotal.toFixed(2)}</span></div>
+              {discountAmount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f0' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>DISCOUNT</span><span>-₹ {discountAmount.toFixed(2)}</span></div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>SHIPPING</span><span style={{fontSize: '18px', textAlign: 'right', fontWeight: 'bold'}}>CALCULATED AT NEXT STEP</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', borderTop: '1px solid #ff0000', paddingTop: '1rem' }}>
+                <span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>TOTAL</span><span style={{ fontSize: '18px', textAlign: 'right', fontWeight: 'bold' }}>₹{finalTotal.toFixed(2)}</span>
               </div>
             </div>
+<<<<<<< HEAD
           ))}
         </div>
 
@@ -224,6 +292,10 @@ export default function CheckoutPage() {
             <span style={{ fontSize: '18px', textAlign: 'left', fontWeight: 'bold'}}>TOTAL</span><span style={{ fontSize: '18px', textAlign: 'right', fontWeight: 'bold' }}>₹{finalTotal.toFixed(2)}</span>
           </div>
         </div>
+=======
+          </>
+        )}
+>>>>>>> 5d9992d17995e0c6eb6ed04fc0cb6abddb87b392
       </div>
     </div>
   );
