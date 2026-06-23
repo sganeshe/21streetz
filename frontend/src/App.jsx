@@ -1,10 +1,11 @@
 import React from "react";
 import { useAuth } from "./context/AuthContext";
 import { useAppContext } from "./context/AppContext";
-import { useCart } from "./context/CartContext"; // Ensures we have cartCount
+import { useCart } from "./context/CartContext";
 import CanvasBackground from "./components/common/CanvasBackground";
 import CartDrawer from "./components/common/CartDrawer";
 import CheckoutPage from "./components/checkout/CheckoutPage";
+import HyperText from "./components/common/HyperText";
 
 // Import Pages
 import Home from "./pages/Home";
@@ -76,21 +77,21 @@ export default function App() {
             className={currentPage === "about" ? "active" : ""}
             onClick={(e) => { e.preventDefault(); navTo("about"); }}
           >
-            about
+            <HyperText text="about" />
           </a>
           <a
             href="#"
             className={currentPage === "shop" ? "active" : ""}
             onClick={(e) => { e.preventDefault(); navTo("shop"); }}
           >
-            shop
+            <HyperText text="shop" />
           </a>
           <a
             href="#"
             className={currentPage === "press" ? "active" : ""}
             onClick={(e) => { e.preventDefault(); navTo("press"); }}
           >
-            press
+            <HyperText text="press" />
           </a>
           {/* <a
             href="#"
@@ -104,7 +105,7 @@ export default function App() {
             className={currentPage === "media" ? "active" : ""}
             onClick={(e) => { e.preventDefault(); navTo("media"); }}
           >
-            contact
+            <HyperText text="media" />
           </a>
 
           <a
@@ -118,7 +119,8 @@ export default function App() {
               setIsCartOpen(true);
             }}
           >
-            samaan<sup>({cartCount || 0})</sup>
+            <HyperText text="samaan" />
+            <sup>({cartCount || 0})</sup>
           </a>
 
           <a
@@ -130,7 +132,7 @@ export default function App() {
               navTo(isAuthenticated ? "orders" : "login");
             }}
           >
-            {isAuthenticated ? user?.name : "login"}
+            <HyperText text={isAuthenticated ? user?.name : "login"} />
           </a>
         </nav>
 
