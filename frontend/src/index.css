@@ -43,7 +43,7 @@ body {
 .scene__card {
   position: relative;
   z-index: 2;
-  width: clamp(320px, 60vw, 90vw);
+  width: clamp(50vw, 60vw, 90vw);
   aspect-ratio: 1200 / 800;
   display: flex;
   flex-direction: column;
@@ -113,23 +113,26 @@ body {
 }
 
 .card__nav {
+  display: relative;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   letter-spacing: -6%;
-  padding: 0 16px;
+  padding: 0 20px;
   flex-wrap: wrap;
   gap: 0rem;
 }
 
 .card__nav a {
+  display: relative;
+  max-width: 100%;
   text-decoration: none;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 500;
   color: var(--black);
   padding: 0px 15px;
-  white-space: nowrap;
+  white-space: pre;
   transition: 0.2s;
 }
 
@@ -155,7 +158,7 @@ body {
 /* =========================================
    MOBILE RESPONSIVE CHANGES (CHUNK 1)
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   body {
     overflow-y: auto; /* Allows the page to scroll if content is taller than screen */
   }
@@ -244,26 +247,29 @@ body {
 }
 
 .textured-logo {
-  /* 1. Changed dimensions to a wide, flat rectangle that matches the text shape! */
-  width: 441px; 
-  height: 287px; 
-   
-  /* 2. The gritty texture */
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   background-image: url("/img/black-bg.png");
   background-size: cover;
-  background-position: center;
   background-repeat: no-repeat;
 
-  /* 3. Proper mask setup - mask the background with the logo shape */
   -webkit-mask-image: url("/img/Logo.svg");
-  -webkit-mask-position: center;
-  -webkit-mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-image: url("/img/Logo.svg");
-  mask-position: center;
-  mask-size: 100% 100%;
   mask-repeat: no-repeat;
   flex-shrink: 0;
+
+  width: min(65vw, 100%) !important;
+  max-width: 65% !important;
+  background-position: center !important; 
+  -webkit-mask-size: contain !important;
+  -webkit-mask-position: center !important;
+  mask-size: contain !important;
+  mask-position: center !important;
+  margin: 0 auto;
 }
 
 /* ============================================================
@@ -313,6 +319,7 @@ body {
 .home {
   height: 100%;
   width: 100%;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -362,16 +369,7 @@ body {
 /* =========================================
    MOBILE RESPONSIVE CHANGES (CHUNK 2)
    ========================================= */
-@media (max-width: 768px) {
-  /* Fixes the 480px hardcoded width on the logo breaking small phones */
-  .textured-logo {
-    width: 100%;
-    max-width: 480px;
-    height: auto;
-    aspect-ratio: 441 / 287;
-    min-height: 150px;
-  }
-
+@media (max-width: 1024px) {
   .card__ticker {
     height: auto;
     padding: 4px 0; /* Gives the text a tiny bit of breathing room */
@@ -677,7 +675,7 @@ body {
 /* =========================================
    MOBILE RESPONSIVE CHANGES (CHUNK 3)
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   /* Scale down product images so they fit in the new mobile grid */
   .product__img img {
     height: auto;
@@ -930,7 +928,7 @@ body {
 /* =========================================
    MOBILE RESPONSIVE CHANGES (CHUNK 4)
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   /* Fix the checkout page layout */
   .checkout-container {
     margin: 1rem auto; /* Less wasted vertical space */
@@ -959,7 +957,7 @@ body {
    MOBILE RESPONSIVENESS (Base HTML/Body)
    ========================================= */
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   /* 1. Prevent side-to-side scrolling which breaks mobile experience */
   html, body {
     overflow-x: hidden; 
@@ -1008,7 +1006,7 @@ body {
 }
 
 /* --- Mobile Navigation Adjustments --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .card__nav {
     position: relative; /* Crucial so the absolute menu positions relative to this nav */
     z-index: 1000; /* Forces nav to stay above the 3D canvas */
@@ -1069,7 +1067,7 @@ body {
 }
 
 /* --- Mobile Cart Adjustments --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .cart-drawer {
     width: 100% !important; /* Take up whole screen on mobile */
     padding: 1rem !important; /* Slightly less padding */
@@ -1113,7 +1111,7 @@ body {
 }
 
 /* --- Mobile Grids (Shop & Home) --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   /* Make the shop grid 2-columns on mobile */
   .products {
     grid-template-columns: repeat(2, 1fr); 
@@ -1136,16 +1134,6 @@ body {
     width: 20px;
     height: 20px;
   }
-
-  /* Ensure Home Page Logo doesn't blow out mobile screens */
-  .textured-logo {
-    max-width: 90vw;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-  }
 }
 
 /* For very narrow phones (iPhone SE, etc) - drop to 1 column */
@@ -1155,22 +1143,34 @@ body {
   }
 }
 
+@media (min-width: 601px) and ( max-width: 1024px) {
+  .textured-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 35%);
+  display: flex;}
+}
+
 /* =========================================
    FOCUSED MOBILE FIX (Leaves Card Size Alone)
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   
   /* --- HOME LOGO FIX --- */
   /* Keeps the home container exactly as is, just shrinks the logo to fit */
   .textured-logo {
-    width: 75vw !important; 
-    height: 75vh !important;
-    background-size: contain !important;
-    background-position: center !important;
-    -webkit-mask-size: contain !important;
-    -webkit-mask-position: center !important;
-    mask-size: contain !important;
-    mask-position: center !important;
+  position: absolute;
+
+  width: min(65vw, 100%) !important;
+  max-width: 100% !important;
+  height: 100%;
+  background-position: center !important; 
+  -webkit-mask-size: contain !important;
+  -webkit-mask-position: center !important;
+  mask-size: contain !important;
+  mask-position: center !important;
+  margin: 0;
   }
 
   /* --- SHOP GRID CONTENT FIX --- */
@@ -1423,7 +1423,7 @@ body {
 }
 
 /* --- Mobile Overrides specifically for Auth --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .auth-page {
     padding: 1.5rem 1rem;
   }
@@ -1573,7 +1573,7 @@ body {
 }
 
 /* --- Mobile Overrides --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .orders-page {
     padding: 1.5rem 1rem;
   }
@@ -1735,7 +1735,7 @@ body {
 }
 
 /* --- Mobile Overrides --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .order-detail-container {
     padding: 1.5rem 1rem;
   }
@@ -1784,7 +1784,7 @@ body {
 }
 
 /* --- Mobile Overrides --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .checkout-layout {
     flex-direction: column; /* Stacks them vertically */
     overflow-y: auto; /* 🔑 Parent TAKES OVER scrolling on mobile! */

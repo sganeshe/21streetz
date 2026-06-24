@@ -5,11 +5,10 @@ export default function Home() {
     <div 
       className="home"
       style={{
+        position: 'relative',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '70vh',
-        width: '100%',
         padding: '1rem'
       }}
     >
