@@ -1,5 +1,5 @@
 const express = require("express");
-const { subscribe, unsubscribe, broadcast } = require("../controllers/subscription.controller");
+const { subscribe, unsubscribe, broadcast , getAllSubscribers } = require("../controllers/subscription.controller");
 const authenticate = require("../middlewares/auth.middleware");
 const isAdmin = require("../middlewares/isAdmin.middleware");
 
@@ -10,5 +10,5 @@ router.post("/unsubscribe", unsubscribe);
 
 // Admin Broadcast Route
 router.post("/broadcast", authenticate, isAdmin, broadcast);
-
+router.get("/all", authenticate, isAdmin, getAllSubscribers);
 module.exports = router;

@@ -123,3 +123,13 @@ module.exports.broadcast = async (req, res, next) => {
     next(err);
   }
 };
+
+
+module.exports.getAllSubscribers = async (req, res, next) => {
+  try {
+    const subscribers = await Subscriber.find({}).sort({ createdAt: -1 });
+    res.status(200).json({ success: true, subscribers });
+  } catch (err) {
+    next(err);
+  }
+};

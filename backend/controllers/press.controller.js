@@ -1,5 +1,19 @@
 const Press = require("../models/press.model");
 const { z } = require("zod");
+const cloudinary = require("../config/cloudinary.config");
+
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "press_features" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
+    uploadStream.end(fileBuffer);
+  });
+};
 
 const pressCreateSchema = z.object({
   headline: z.string().min(1),
@@ -29,12 +43,14 @@ module.exports.addPress = async (req, res, next) => {
       });
     }
 
+    const imageUrl = await uploadToCloudinary(req.file.buffer);
+
     const { headline, redirectLink } = parse.data;
 
     const press = new Press({
       headline,
       redirectLink,
-      image: req.file.path, // Cloudinary URL populated by Multer
+      image: imageUrl,
     });
 
     await press.save();
@@ -89,7 +105,8 @@ module.exports.updatePress = async (req, res, next) => {
     
     // If admin uploaded a new image, overwrite the old one
     if (req.file) {
-      press.image = req.file.path;
+      const newImageUrl = await uploadToCloudinary(req.file.buffer);
+      press.image = newImageUrl;
     }
 
     await press.save();

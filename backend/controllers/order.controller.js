@@ -16,9 +16,10 @@ const orderCreateSchema = z.object({
     city: z.string().min(1),
     postalCode: z.string().min(1),
     country: z.string().min(1),
+    phone: z.string().min(10),
   }),
   paymentMethod: z.string().min(1),
-  couponCode: z.string().uppercase().trim().optional(), // Optional field from frontend
+  couponCode: z.string().uppercase().trim().optional(),
 });
 
 const paymentResultSchema = z.object({
@@ -41,7 +42,7 @@ module.exports.createOrder = async (req, res, next) => {
 
     const { orderItems, shippingAddress, paymentMethod, couponCode } = parse.data;
 
-    let subTotal = 0;
+    let itemsPrice = 0; // Renamed from subTotal for clarity
     const verifiedOrderItems = [];
 
     for (const item of orderItems) {
@@ -57,10 +58,13 @@ module.exports.createOrder = async (req, res, next) => {
       }
 
       if (selectedSize.countInStock < item.qty) {
-        return res.status(400).json({ success: false, message: `Insufficient stock for ${dbProduct.name} (Size: ${item.size})` });
+        return res.status(400).json({ success: false, message: `Insufficient stock for ${dbProduct.name}` });
       }
 
-      subTotal += dbProduct.price * item.qty;
+      itemsPrice += dbProduct.price * item.qty;
+
+      // Capture the first image if it exists
+      const productImage = dbProduct.images && dbProduct.images.length > 0 ? dbProduct.images[0] : "";
 
       verifiedOrderItems.push({
         name: dbProduct.name,
@@ -68,6 +72,7 @@ module.exports.createOrder = async (req, res, next) => {
         price: dbProduct.price,
         product: dbProduct._id,
         size: item.size,
+        image: productImage, 
       });
     }
 
@@ -77,29 +82,33 @@ module.exports.createOrder = async (req, res, next) => {
       const coupon = await Coupon.findOne({ code: couponCode, isActive: true });
       
       if (!coupon || new Date() > coupon.expiryDate) {
-        return res.status(400).json({ success: false, message: "Invalid or expired coupon code" });
+        return res.status(400).json({ success: false, message: "Invalid or expired coupon" });
       }
 
       if (coupon.discountType === "PERCENTAGE") {
-        let rawDiscount = (subTotal * coupon.discountValue) / 100;
-        
-        if (coupon.maxDiscountAmount) {
-          discountAmount = Math.min(rawDiscount, coupon.maxDiscountAmount);
-        } else {
-          discountAmount = rawDiscount;
-        }
+        let rawDiscount = (itemsPrice * coupon.discountValue) / 100;
+        discountAmount = coupon.maxDiscountAmount ? Math.min(rawDiscount, coupon.maxDiscountAmount) : rawDiscount;
       } else if (coupon.discountType === "FIXED") {
         discountAmount = coupon.discountValue;
       }
     }
 
-    const finalTotalPrice = Math.max(0, subTotal - discountAmount);
+    // NEW: Calculate Shipping Price. 
+    // Example logic: Flat ₹100 shipping if cart is under ₹1000, otherwise free.
+    const shippingPrice = itemsPrice > 1000 ? 0 : 100; 
+
+    // Calculate final total
+    const discountedTotal = Math.max(0, itemsPrice - discountAmount);
+    const finalTotalPrice = discountedTotal + shippingPrice;
 
     const order = new Order({
       user: req.userId,
       orderItems: verifiedOrderItems,
       shippingAddress,
       paymentMethod,
+      itemsPrice,       
+      shippingPrice,    
+      discountAmount,  
       totalPrice: finalTotalPrice,
     });
 

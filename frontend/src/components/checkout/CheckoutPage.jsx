@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Eye, EyeOff } from 'lucide-react'; // 1. Imported Icons
 import { useAppContext } from '../../context/AppContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -7,16 +8,20 @@ import { couponService } from '../../services/coupon.service';
 export default function CheckoutPage() {
   const { setIsCheckout } = useAppContext();
   const { cartItems, cartTotal, updateQuantity } = useCart();
-  const { isAuthenticated, login, register } = useAuth();
+  
+  // 2. Extracted 'user' from useAuth
+  const { user, isAuthenticated, login, register } = useAuth();
 
   // --- UI STATES ---
   const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ name: '', email: '', phone:'', password: '' });
+  const [authError, setAuthError] = useState(null); // Added error state for auth
+  const [showPassword, setShowPassword] = useState(false); // Added toggle state
   const { navTo } = useAppContext();
   
   const [shippingForm, setShippingForm] = useState({
     firstName: '', lastName: '', address: '', apartment: '',
-    city: '', country: '', state: '', postalCode: '', phone: ''
+    city: '', country: '', state: '', postalCode: '', phone: '' // Ensured phone is here
   });
 
   const [couponCode, setCouponCode] = useState('');
@@ -35,8 +40,20 @@ export default function CheckoutPage() {
   const pageRef = useRef(null);
   
   React.useEffect(() => {
-      pageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, []);
+    pageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  // 3. AUTO-FILL LOGIC: Populate shipping form if user is logged in
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setShippingForm(prev => ({
+        ...prev,
+        phone: prev.phone === '' ? (user.phone || '') : prev.phone,
+        firstName: prev.firstName || (user.name ? user.name.split(' ')[0] : ''),
+        lastName: prev.lastName || (user.name ? user.name.split(' ').slice(1).join(' ') : '')
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   // --- SHARED DISCOUNT CALCULATION ---
   const calcDiscount = (coupon, subTotal) => {
@@ -65,9 +82,30 @@ export default function CheckoutPage() {
     setDiscountAmount(calcDiscount(appliedCoupon, cartTotal));
   }, [cartTotal, cartItems.length, appliedCoupon]);
 
+  // 4. FRONTEND VALIDATION
+  const validateAuth = () => {
+    if (authMode === 'register') {
+      const phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(authForm.phone)) {
+        setAuthError("Phone number must be exactly 10 digits.");
+        return false;
+      }
+      if (authForm.password.length < 8 || !/[A-Z]/.test(authForm.password) || !/[0-9]/.test(authForm.password) || !/[^a-zA-Z0-9]/.test(authForm.password)) {
+        setAuthError("Password must be 8+ chars, with 1 uppercase, 1 number, and 1 special char.");
+        return false;
+      }
+    }
+    setAuthError(null);
+    return true;
+  };
+
   // --- HANDLERS ---
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
+    setAuthError(null);
+
+    if (!validateAuth()) return; // Stop if validation fails
+
     try {
       if (authMode === 'login') {
         await login(authForm.email, authForm.password);
@@ -75,7 +113,7 @@ export default function CheckoutPage() {
         await register(authForm.name, authForm.email, authForm.password, authForm.phone);
       }
     } catch (err) {
-      alert("Authentication failed. Please check your credentials.");
+      setAuthError(err.response?.data?.message || "Authentication failed.");
     }
   };
 
@@ -98,13 +136,20 @@ export default function CheckoutPage() {
   };
 
   const handlePaymentSubmit = () => {
+    // Basic validation to ensure phone is provided before checkout
+    if (!shippingForm.phone || shippingForm.phone.length < 10) {
+      alert("Please provide a valid 10-digit phone number for shipping updates.");
+      return;
+    }
+
     const orderPayload = {
       orderItems: cartItems.map(item => ({ qty: item.qty, product: item.product, size: item.size })),
       shippingAddress: {
         address: `${shippingForm.address} ${shippingForm.apartment}`,
         city: shippingForm.city,
         postalCode: shippingForm.postalCode,
-        country: shippingForm.country
+        country: shippingForm.country,
+        phone: shippingForm.phone // 5. Added phone to backend payload!
       },
       paymentMethod: "Razorpay",
       couponCode: couponCode.toUpperCase()
@@ -183,6 +228,9 @@ export default function CheckoutPage() {
               <span onClick={() => navTo("shop")} style={{ cursor: "pointer", fontSize: "18px", opacity: 0.8 }}>[ back_to_shop ]</span>
             </div>
             
+            {/* Display Auth Errors directly in the form */}
+            {authError && <div style={{ color: '#ff0000', marginBottom: '1rem', fontSize: '14px', fontWeight: 'bold' }}>[ERROR] {authError}</div>}
+
             {authMode === 'register' && (
               <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>FULL NAME</label>
               <input type="text" style={{...inputStyle, fontSize: '16px'}} required value={authForm.name} onChange={e => setAuthForm({...authForm, name: e.target.value})} /></div>
@@ -193,11 +241,29 @@ export default function CheckoutPage() {
 
             {authMode === 'register' && (
               <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PHONE NUMBER</label>
-              <input type="text" style={{...inputStyle, fontSize: '16px'}} required minLength={10} maxLength={15} value={authForm.phone} onChange={e => setAuthForm({...authForm, phone: e.target.value})} /></div>
+              <input type="text" style={{...inputStyle, fontSize: '16px'}} required maxLength={10} value={authForm.phone} onChange={e => setAuthForm({...authForm, phone: e.target.value})} /></div>
             )}
             
-            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PASSWORD</label>
-            <input type="password" style={{...inputStyle, fontSize: '16px'}} required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} /></div>
+            <div style={groupStyle}>
+              <label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PASSWORD</label>
+              {/* 6. Password Visibility Toggle Wrapper */}
+              <div style={{ position: "relative" }}>
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  style={{...inputStyle, fontSize: '16px', paddingRight: '40px'}} 
+                  required 
+                  value={authForm.password} 
+                  onChange={e => setAuthForm({...authForm, password: e.target.value})} 
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "#ff0000", display: "flex", alignItems: "center", padding: 0 }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
             
             <button type="submit" style={{ ...inputStyle, fontSize: '15px', cursor: 'pointer', background: '#ff0000', color: '#000', border: 'none', fontWeight: 'bold' }}>
               {authMode === 'login' ? 'EXECUTE_LOGIN' : 'INITIALIZE_ACCOUNT'}
@@ -205,7 +271,7 @@ export default function CheckoutPage() {
             
             <p style={{ marginTop: '1rem', fontSize: '16px', cursor: 'pointer', textAlign: 'center' }}>
               <span style={{ opacity: 0.7 }}>{authMode === 'login' ? 'Don\'t have an account? ' : 'Already have an account? '}</span>
-              <span onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} style={{ textDecoration: 'underline', fontWeight: 'bold' }}>
+              <span onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(null); }} style={{ textDecoration: 'underline', fontWeight: 'bold' }}>
                 {authMode === 'login' ? 'Sign up here' : 'Login here'}
               </span>
             </p>
@@ -215,19 +281,26 @@ export default function CheckoutPage() {
           <div style={{ paddingBottom: '2rem' }}>
             <h3 style={{...headerStyle, marginBottom: "1rem", textAlign: "left", fontSize: "20px", textTransform: "uppercase"}}>SHIPPING ADDRESS</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', ...groupStyle }}>
-              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>FIRST NAME</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, firstName: e.target.value})} /></div>
-              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>LAST NAME</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, lastName: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>FIRST NAME</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.firstName} onChange={e => setShippingForm({...shippingForm, firstName: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>LAST NAME</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.lastName} onChange={e => setShippingForm({...shippingForm, lastName: e.target.value})} /></div>
             </div>
-            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>ADDRESS</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, address: e.target.value})} /></div>
-            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>APARTMENT, SUITE, ETC.</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, apartment: e.target.value})} /></div>
+            
+            {/* 7. Missing Phone Field Added to Shipping Form */}
+            <div style={groupStyle}>
+              <label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>PHONE NUMBER (For Updates)</label>
+              <input type="text" style={{...inputStyle, fontSize: "16px"}} maxLength={10} value={shippingForm.phone} onChange={e => setShippingForm({...shippingForm, phone: e.target.value})} required />
+            </div>
+
+            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>ADDRESS</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.address} onChange={e => setShippingForm({...shippingForm, address: e.target.value})} /></div>
+            <div style={groupStyle}><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>APARTMENT, SUITE, ETC.</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.apartment} onChange={e => setShippingForm({...shippingForm, apartment: e.target.value})} /></div>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', ...groupStyle }}>
-              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>CITY</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, city: e.target.value})} /></div>
-              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>COUNTRY</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, country: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>CITY</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.city} onChange={e => setShippingForm({...shippingForm, city: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>COUNTRY</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.country} onChange={e => setShippingForm({...shippingForm, country: e.target.value})} /></div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', ...groupStyle }}>
-              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>STATE / PROVINCE</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, state: e.target.value})} /></div>
-              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>ZIP / POSTAL CODE</label><input type="text" style={{...inputStyle, fontSize: "16px"}} onChange={e => setShippingForm({...shippingForm, postalCode: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>STATE / PROVINCE</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.state} onChange={e => setShippingForm({...shippingForm, state: e.target.value})} /></div>
+              <div><label style={{...labelStyle, textAlign: "left", fontSize: "15px", textTransform: "uppercase"}}>ZIP / POSTAL CODE</label><input type="text" style={{...inputStyle, fontSize: "16px"}} value={shippingForm.postalCode} onChange={e => setShippingForm({...shippingForm, postalCode: e.target.value})} /></div>
             </div>
             
             <button
