@@ -11,7 +11,7 @@ const HyperText = ({ text, className }) => {
   }, [text]);
 
   const scramble = () => {
-    let iteration = 0;
+    let iteration = -1;
     clearInterval(intervalRef.current);
 
     intervalRef.current = setInterval(() => {
@@ -31,8 +31,8 @@ const HyperText = ({ text, className }) => {
         clearInterval(intervalRef.current);
       }
 
-      iteration += 1 / 2; // Adjust the speed of the scramble effect here
-    }, 5); // Adjust the interval time here
+      iteration += 1 / 3; // Adjust the speed of the scramble effect here
+    }, 16); // Adjust the interval time here
   };
 
   return (
