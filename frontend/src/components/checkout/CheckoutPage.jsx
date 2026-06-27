@@ -233,8 +233,8 @@ export default function CheckoutPage() {
         {!isAuthenticated ? (
           <form onSubmit={handleAuthSubmit} style={{ paddingBottom: '2rem' }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem", borderBottom: "2px solid rgba(255,0,0,0.3)", paddingBottom: "0.5rem" }}>
-              <h3 style={{ fontSize: "25px", fontWeight: "bold", textTransform: "lowercase", margin: 0 }}>{authMode === 'login' ? 'LOGIN TO CONTINUE' : 'CREATE ACCOUNT'}</h3>
-              <span onClick={() => navTo("shop")} style={{ cursor: "pointer", fontSize: "18px", opacity: 0.8 }}>[ back_to_shop ]</span>
+              <h3 style={{ textAlign: "left", fontSize: "25px", fontWeight: "bold", textTransform: "lowercase", margin: 0 }}>{authMode === 'login' ? 'LOGIN TO CONTINUE' : 'CREATE ACCOUNT'}</h3>
+              <span onClick={() => navTo("shop")} style={{ textAlign: "right", cursor: "pointer", fontSize: "18px", opacity: 0.8 }}>[back_to_shop]</span>
             </div>
             
             {/* Display Auth Errors directly in the form */}
