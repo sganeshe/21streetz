@@ -21,7 +21,7 @@ export default function Topbar() {
         <div className="h-8 w-px bg-neutral-800 mx-2"></div>
         
         <button 
-          onClick={() => { if (window.confirm("End session?")) logout(); }}
+          onClick={() => { logout()}}
           className="flex items-center gap-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-neutral-900"
         >
           <LogOut className="w-4 h-4" />

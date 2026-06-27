@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Trash2, Loader2, Tag } from 'lucide-react';
+import { Plus, Trash2, Loader2, Tag } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { couponService } from '../services/coupon.service';
 import AddCouponModal from '../components/AddCouponModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Coupons() {
   const [coupons, setCoupons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { showToast } = useToast();
+
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    couponId: null,
+  });
 
   const fetchCoupons = async () => {
     setIsLoading(true);
@@ -37,10 +43,14 @@ export default function Coupons() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this coupon?")) return;
+  const handleDeleteClick = (e, id) => {
+    e.stopPropagation();
+    setConfirmDialog({ isOpen: true, couponId: id });
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
-      await couponService.delete(id);
+      await couponService.delete(confirmDialog.couponId);
       showToast("Coupon deleted", "success");
       fetchCoupons();
     } catch (error) {
@@ -55,7 +65,7 @@ export default function Coupons() {
           <h1 className="text-2xl font-semibold text-white">Coupons</h1>
           <p className="text-sm text-neutral-400 mt-1">Manage promotional codes and discounts</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 bg-white text-black px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-neutral-200 transition-colors shadow-sm"
         >
@@ -63,13 +73,12 @@ export default function Coupons() {
           Add Coupon
         </button>
       </div>
-      
 
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-sm min-h-[300px] relative">
         {isLoading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400">
-             <Loader2 className="w-8 h-8 animate-spin mb-4" />
-             <p className="text-sm">Fetching coupons...</p>
+            <Loader2 className="w-8 h-8 animate-spin mb-4" />
+            <p className="text-sm">Fetching coupons...</p>
           </div>
         ) : coupons.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400">
@@ -84,7 +93,7 @@ export default function Coupons() {
                   <th className="px-6 py-4 font-medium whitespace-nowrap">Code</th>
                   <th className="px-6 py-4 font-medium whitespace-nowrap">Discount</th>
                   <th className="px-6 py-4 font-medium whitespace-nowrap">Status</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">Expires On</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap">Expires on</th>
                   <th className="px-6 py-4 font-medium text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
@@ -102,24 +111,33 @@ export default function Coupons() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {coupon.discountType === 'PERCENTAGE' ? (
-                          <span>{coupon.discountValue}% <span className="text-xs text-neutral-500 ml-1">{coupon.maxDiscountAmount ? `(Up to ₹${coupon.maxDiscountAmount})` : ''}</span></span>
+                          <span>
+                            {coupon.discountValue}%{' '}
+                            <span className="text-xs text-neutral-500 ml-1">
+                              {coupon.maxDiscountAmount ? `(Up to ₹${coupon.maxDiscountAmount})` : ''}
+                            </span>
+                          </span>
                         ) : (
-                          <span>₹{coupon.discountValue} Off</span>
+                          <span>₹{coupon.discountValue} off</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider font-semibold border ${
-                          isActive ? 'bg-emerald-950/30 border-emerald-900/50 text-emerald-500' : 'bg-red-950/30 border-red-900/50 text-red-500'
+                          isActive
+                            ? 'bg-emerald-950/30 border-emerald-900/50 text-emerald-500'
+                            : 'bg-red-950/30 border-red-900/50 text-red-500'
                         }`}>
-                          {isActive ? 'Active' : 'Expired/Disabled'}
+                          {isActive ? 'Active' : 'Expired / Disabled'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(coupon.expiryDate).toLocaleDateString()}
+                        {new Date(coupon.expiryDate).toLocaleDateString('en-IN', {
+                          day: 'numeric', month: 'short', year: 'numeric'
+                        })}
                       </td>
                       <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <button 
-                          onClick={() => handleDelete(coupon._id)}
+                        <button
+                          onClick={(e) => handleDeleteClick(e, coupon._id)}
                           className="text-neutral-500 hover:text-red-500 transition-colors p-2 rounded-md hover:bg-neutral-800"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -134,10 +152,20 @@ export default function Coupons() {
         )}
       </div>
 
-      <AddCouponModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <AddCouponModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onAdd={handleAddCoupon}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, couponId: null })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete coupon?"
+        message="This will permanently remove the coupon code. Any users with this code will no longer be able to use it."
+        confirmLabel="Delete"
+        variant="danger"
       />
     </div>
   );

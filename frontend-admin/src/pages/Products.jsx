@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Trash2, Loader2, Image as ImageIcon, Edit2 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
-import { productService } from '../services/product.service'; 
+import { productService } from '../services/product.service';
 import AddProductModal from '../components/AddProductModal';
 import EditProductModal from '../components/EditProductModal';
-
-
-  
-
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
   // Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    productId: null,
+  });
+
   const { showToast } = useToast();
 
   const fetchProducts = async () => {
@@ -40,10 +44,10 @@ export default function Products() {
     try {
       await productService.add(formData);
       showToast("Product successfully created", "success");
-      fetchProducts(); 
+      fetchProducts();
     } catch (error) {
       showToast(error.response?.data?.message || "Failed to create product", "error");
-      throw error; 
+      throw error;
     }
   };
 
@@ -58,11 +62,15 @@ export default function Products() {
     }
   };
 
-  const handleDelete = async (e, id) => {
-    e.stopPropagation(); // Prevents the row click from opening the edit modal
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  const handleDeleteClick = (e, id) => {
+    e.stopPropagation();
+    setConfirmDialog({ isOpen: true, productId: id });
+  };
+
+  // Called when user clicks "Delete" inside the dialog
+  const handleDeleteConfirm = async () => {
     try {
-      await productService.delete(id);
+      await productService.delete(confirmDialog.productId);
       showToast("Product deleted", "success");
       fetchProducts();
     } catch (error) {
@@ -77,7 +85,6 @@ export default function Products() {
 
   const filteredProducts = products.filter((product) => {
     if (!searchQuery) return true;
-
     const lowerCaseQuery = searchQuery.toLowerCase();
     return (
       product.name?.toLowerCase().includes(lowerCaseQuery) ||
@@ -92,7 +99,7 @@ export default function Products() {
           <h1 className="text-2xl font-semibold text-white">Products</h1>
           <p className="text-sm text-neutral-400 mt-1">Manage your storefront inventory</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsAddModalOpen(true)}
           className="flex items-center gap-2 bg-white text-black px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-neutral-200 transition-colors shadow-sm"
         >
@@ -104,9 +111,9 @@ export default function Products() {
       <div className="flex items-center justify-between bg-neutral-900 p-4 rounded-xl border border-neutral-800">
         <div className="relative w-full max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-          <input 
-            type="text" 
-            placeholder="Search products..." 
+          <input
+            type="text"
+            placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-neutral-950 border border-neutral-800 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 transition-all placeholder-neutral-600"
@@ -117,8 +124,8 @@ export default function Products() {
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-sm min-h-[300px] relative">
         {isLoading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400">
-             <Loader2 className="w-8 h-8 animate-spin mb-4" />
-             <p className="text-sm">Fetching database...</p>
+            <Loader2 className="w-8 h-8 animate-spin mb-4" />
+            <p className="text-sm">Fetching database...</p>
           </div>
         ) : products.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400">
@@ -143,31 +150,39 @@ export default function Products() {
               <tbody className="divide-y divide-neutral-800">
                 {filteredProducts.map((product) => {
                   const totalStock = product.sizes?.reduce((sum, s) => sum + s.countInStock, 0) || 0;
-                  
+
                   return (
-                    <tr 
-                      key={product._id} 
+                    <tr
+                      key={product._id}
                       onClick={() => openEditModal(product)}
                       className="hover:bg-neutral-800/80 transition-colors cursor-pointer group"
                     >
                       <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
                         {product.images?.[0] ? (
-                          <img src={product.images[0]} alt={product.name} className="w-10 h-10 rounded bg-neutral-800 object-cover border border-neutral-700" />
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
+                            className="w-10 h-10 rounded bg-neutral-800 object-cover border border-neutral-700"
+                          />
                         ) : (
                           <div className="w-10 h-10 rounded bg-neutral-800 flex items-center justify-center border border-neutral-700">
                             <ImageIcon className="w-4 h-4 text-neutral-600" />
                           </div>
                         )}
                         <div>
-                          <p className="text-white font-medium group-hover:underline decoration-neutral-500 underline-offset-4">{product.name}</p>
+                          <p className="text-white font-medium group-hover:underline decoration-neutral-500 underline-offset-4">
+                            {product.name}
+                          </p>
                           <p className="text-xs text-neutral-500 uppercase">{product.category}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider font-semibold border ${
-                          totalStock > 10 ? 'bg-neutral-950 border-neutral-800 text-neutral-300' : 
-                          totalStock > 0 ? 'bg-neutral-800 border-neutral-700 text-white' : 
-                          'bg-red-950/30 border-red-900/50 text-red-500'
+                          totalStock > 10
+                            ? 'bg-neutral-950 border-neutral-800 text-neutral-300'
+                            : totalStock > 0
+                            ? 'bg-neutral-800 border-neutral-700 text-white'
+                            : 'bg-red-950/30 border-red-900/50 text-red-500'
                         }`}>
                           {totalStock > 10 ? 'In Stock' : totalStock > 0 ? 'Low Stock' : 'Sold Out'}
                         </span>
@@ -176,14 +191,14 @@ export default function Products() {
                       <td className="px-6 py-4 text-white whitespace-nowrap">₹{product.price}</td>
                       <td className="px-6 py-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
-                          <button 
+                          <button
                             onClick={(e) => { e.stopPropagation(); openEditModal(product); }}
                             className="text-neutral-500 hover:text-white transition-colors p-2 rounded-md hover:bg-neutral-800"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
-                          <button 
-                            onClick={(e) => handleDelete(e, product._id)}
+                          <button
+                            onClick={(e) => handleDeleteClick(e, product._id)}
                             className="text-neutral-500 hover:text-red-500 transition-colors p-2 rounded-md hover:bg-neutral-800"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -199,17 +214,27 @@ export default function Products() {
         )}
       </div>
 
-      <AddProductModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+      <AddProductModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         onAdd={handleAddProduct}
       />
 
-      <EditProductModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
+      <EditProductModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
         onUpdate={handleUpdateProduct}
         product={selectedProduct}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, productId: null })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete product?"
+        message="This will permanently remove the product from your store. This action can't be undone."
+        confirmLabel="Delete"
+        variant="danger"
       />
     </div>
   );

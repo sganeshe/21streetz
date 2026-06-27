@@ -19,13 +19,4 @@ export const orderService = {
     return response.data;
   },
 
-  // Admin
-  getAllOrders: async () => {
-    const response = await api.get("/orders/all");
-    return response.data;
-  },
-  markAsDelivered: async (id) => {
-    const response = await api.put(`/orders/${id}/deliver`);
-    return response.data;
-  }
 };

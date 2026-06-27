@@ -57,7 +57,7 @@ const uploadToCloudinary = (fileBuffer) => {
 
 module.exports.getAllProducts = async (req, res, next) => {
   try {
-    const products = await Product.find({});
+    const products = await Product.find({}).sort({createdAt:-1});
     
     res.status(200).json({
       success: true,

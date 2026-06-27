@@ -4,6 +4,7 @@ import { useAppContext } from '../../context/AppContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { couponService } from '../../services/coupon.service';
+import { orderService } from '../../services/order.service';
 
 export default function CheckoutPage() {
   const { setIsCheckout } = useAppContext();
@@ -135,8 +136,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePaymentSubmit = () => {
-    // Basic validation to ensure phone is provided before checkout
+  const handlePaymentSubmit = async () => {
     if (!shippingForm.phone || shippingForm.phone.length < 10) {
       alert("Please provide a valid 10-digit phone number for shipping updates.");
       return;
@@ -145,16 +145,25 @@ export default function CheckoutPage() {
     const orderPayload = {
       orderItems: cartItems.map(item => ({ qty: item.qty, product: item.product, size: item.size })),
       shippingAddress: {
-        address: `${shippingForm.address} ${shippingForm.apartment}`,
+        address: `${shippingForm.apartment}, ${shippingForm.address} `,
         city: shippingForm.city,
         postalCode: shippingForm.postalCode,
         country: shippingForm.country,
-        phone: shippingForm.phone // 5. Added phone to backend payload!
+        phone: shippingForm.phone
       },
       paymentMethod: "Razorpay",
       couponCode: couponCode.toUpperCase()
     };
-    console.log("READY FOR PAYMENT GATEWAY:", orderPayload);
+
+    try{
+      await orderService.create(orderPayload)
+      console.log("READY FOR PAYMENT GATEWAY:", orderPayload);
+    }catch(err){
+      const errorMsg = err.response?.data?.message || "Order unsuccessfull";
+      alert(errorMsg);
+    }
+
+    
   };
 
   const finalTotal = Math.max(0, cartTotal - discountAmount);

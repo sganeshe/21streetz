@@ -214,7 +214,7 @@ module.exports.updateOrderToPaid = async (req, res, next) => {
 
 module.exports.getAllOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({}).populate("user", "id name");
+    const orders = await Order.find({}).sort({createdAt:-1}).populate("user", "id name");
     
     res.status(200).json({
       success: true,
@@ -250,3 +250,134 @@ module.exports.updateOrderToDelivered = async (req, res, next) => {
     next(err);
   }
 };
+
+
+module.exports.getDashboardStats = async (req, res, next) => {
+  try {
+    const totalOrders = await Order.countDocuments();
+    
+    const revenueResult = await Order.aggregate([
+      { $match: { isPaid: true } },
+      { $group: { _id: null, totalRevenue: { $sum: "$totalPrice" } } }
+    ]);
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+    const recentOrders = await Order.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("user", "name email");
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const dailyRevenue = await Order.aggregate([
+      { $match: { isPaid: true, createdAt: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          revenue: { $sum: "$totalPrice" }
+        }
+      }
+    ]);
+
+    const chartData = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateString = d.toISOString().split('T')[0];
+      const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short' });
+      
+      const found = dailyRevenue.find(r => r._id === dateString);
+      chartData.push({ name: dayLabel, revenue: found ? found.revenue : 0 });
+    }
+
+    res.status(200).json({
+      success: true,
+      totalOrders,
+      totalRevenue,
+      recentOrders,
+      chartData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// controllers/order.controller.js
+
+module.exports.getWeeklyStats = async (req, res, next) => {
+  try {
+    let { week, year } = req.query;
+
+    const now = new Date();
+    year = parseInt(year) || now.getFullYear();
+
+
+    const jan4 = new Date(year, 0, 4); 
+    const startOfWeek1 = new Date(jan4);
+    startOfWeek1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7)); // back to Monday
+
+    week = parseInt(week) || getISOWeek(now);
+
+    const weekStart = new Date(startOfWeek1);
+    weekStart.setDate(startOfWeek1.getDate() + (week - 1) * 7);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    const dailyRevenue = await Order.aggregate([
+      { $match: { isPaid: true, createdAt: { $gte: weekStart, $lte: weekEnd } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          revenue: { $sum: "$totalPrice" },
+          orders: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const chartData = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      const dateString = d.toISOString().split('T')[0];
+      const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short' });
+      const found = dailyRevenue.find(r => r._id === dateString);
+      chartData.push({
+        name: dayLabel,
+        date: dateString,
+        revenue: found ? found.revenue : 0,
+        orders: found ? found.orders : 0
+      });
+    }
+
+   
+    const totalWeekRevenue = chartData.reduce((sum, d) => sum + d.revenue, 0);
+    const totalWeekOrders = chartData.reduce((sum, d) => sum + d.orders, 0);
+
+    res.status(200).json({
+      success: true,
+      week,
+      year,
+      weekStart: weekStart.toISOString().split('T')[0],
+      weekEnd: weekEnd.toISOString().split('T')[0],
+      totalWeekRevenue,
+      totalWeekOrders,
+      chartData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+function getISOWeek(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+  const week1 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+}

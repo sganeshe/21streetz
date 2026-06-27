@@ -11,9 +11,4 @@ export const subscriptionService = {
     return response.data;
   },
   
-  // Admin
-  broadcast: async (broadcastData) => {
-    const response = await api.post("/subscriptions/broadcast", broadcastData);
-    return response.data;
-  }
 };

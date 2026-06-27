@@ -27,5 +27,13 @@ export const orderService = {
   markAsDelivered: async (id) => {
     const response = await api.put(`/orders/${id}/deliver`);
     return response.data;
-  }
+  },
+  getDashboardStats: async () => {
+    const response = await api.get('/orders/dashboard-stats');
+    return response.data;
+  },
+  getWeeklyStats: async (week, year) => {
+    const response = await api.get(`/orders/weekly-stats?week=${week}&year=${year}`);
+    return response.data;
+  },
 };

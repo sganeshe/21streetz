@@ -6,6 +6,8 @@ const {
   updateOrderToPaid,
   getAllOrders,
   updateOrderToDelivered,
+  getDashboardStats,
+  getWeeklyStats
 } = require("../controllers/order.controller");
 const authenticate = require("../middlewares/auth.middleware");
 const isAdmin = require("../middlewares/isAdmin.middleware");
@@ -13,6 +15,8 @@ const isAdmin = require("../middlewares/isAdmin.middleware");
 const router = express.Router();
 
 
+router.get("/dashboard-stats", authenticate, isAdmin, getDashboardStats);
+router.get('/weekly-stats', authenticate, isAdmin, getWeeklyStats);
 router.post("/new", authenticate, createOrder);
 router.get("/myorders", authenticate, getMyOrders);
 

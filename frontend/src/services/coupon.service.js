@@ -6,14 +6,6 @@ export const couponService = {
     const response = await api.get("/coupons/all");
     return response.data;
   },
-  add: async (couponData) => {
-    const response = await api.post("/coupons/add", couponData);
-    return response.data;
-  },
-  delete: async (id) => {
-    const response = await api.delete(`/coupons/${id}`);
-    return response.data;
-  },
   validate: async (code) => {
     const response = await api.post("/coupons/validate", { code });
     return response.data;
