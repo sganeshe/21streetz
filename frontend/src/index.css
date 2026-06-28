@@ -500,6 +500,8 @@ body {
   width: 100%;
   height: 100%;
   padding: 25px 30px;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   background-color: var(--red);
   color: var(--black);
@@ -509,6 +511,25 @@ body {
 
   display: flex;
   flex-direction: column;
+}
+
+/* Brutalist Scrollbar */
+.productDetail::-webkit-scrollbar {
+  width: 12px;
+}
+
+.productDetail::-webkit-scrollbar-track {
+  background: #000000;
+  border-left: 2px solid #ff0000;
+}
+
+.productDetail::-webkit-scrollbar-thumb {
+  background: #ff0000;
+  border: 1px solid #000000;
+}
+
+.productDetail::-webkit-scrollbar-thumb:hover {
+  background: #cc0000;
 }
 
 /* ================= TOP ================= */
@@ -523,7 +544,7 @@ body {
   /* 1. The Apple/iOS specific sticky command (Must be before regular sticky) */
   position: -webkit-sticky; 
   position: sticky;
-  top: 0;
+  top: -1.6rem;
   z-index: 100;
   
   background-color: var(--red);
@@ -539,7 +560,8 @@ body {
 /* ================= MAIN ================= */
 .pd__content {
   flex: 1;
-
+  min-height: min-content;
+  padding-bottom: 4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1820,4 +1842,61 @@ body {
   /* A very subtle background tint instead of a harsh flash */
   background-color: rgba(255, 0, 0, 0.05) !important;
   pointer-events: none; /* Prevents spam clicking */
+}
+
+/* Brutalist Badge Styling */
+.brutalist-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000000;
+  color: #ff0000; /* Match your exact theme red */
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: bold;
+  padding: 6px 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 10;
+  border: 1px solid #000000;
+}
+
+/* Brutalist Slider Arrows */
+.brutalist-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #000000;
+  color: #ff0000;
+  font-family: monospace;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease-in-out;
+}
+
+.brutalist-arrow:hover {
+  background-color: #ff0000;
+  color: #000000;
+  border: 1px solid #000000;
+}
+
+.arrow-left {
+  left: 0;
+}
+
+.arrow-right {
+  right: 6.6rem;
+}
+
+/* Ensure the image container creates a strict bounding box */
+.image-bounds {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
