@@ -1,101 +1,192 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { productService } from "../services/product.service";
 import { useAppContext } from "../context/AppContext";
 import { useCart } from "../context/CartContext";
 
-function ProductCard({ product, setSelectedProduct, addToCart, addingId, setAddingId }) {
-  const [currentImgIndex, setCurrentImgIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const totalStock = product.sizes?.reduce((sum, s) => sum + s.countInStock, 0) || 0;
-  const isLowStock = totalStock > 0 && totalStock <= 5;
-  const isSoldOut = totalStock === 0;
-
-  const imagesArray = product.images && product.images.length > 0 ? product.images : ["/img/shirt3.png"];
+function SizePicker({ product, onSelect, onClose }) {
+  const pickerRef = useRef(null);
 
   useEffect(() => {
-    let interval;
-    if (isHovered && imagesArray.length > 1) {
-      interval = setInterval(() => {
-        setCurrentImgIndex((prev) => (prev + 1) % imagesArray.length);
-      }, 1200);
+    const handleClickOutside = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
+
+  return (
+    <div
+      ref={pickerRef}
+      style={{
+        position: "absolute",
+        bottom: "calc(100% + 6px)",
+        right: 0,
+        background: "#050505",
+        border: "1px solid #ff0000",
+        padding: "10px 12px",
+        zIndex: 200,
+        minWidth: "130px",
+        fontFamily: "monospace",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "9px",
+          color: "#ff0000",
+          opacity: 0.5,
+          marginBottom: "8px",
+          letterSpacing: "2px",
+        }}
+      >
+        SELECT SIZE
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+        {product.sizes.map((s) => {
+          const oos = s.countInStock === 0;
+          return (
+            <span
+              key={s.size}
+              onClick={() => !oos && onSelect(s.size)}
+              style={{
+                fontSize: "11px",
+                letterSpacing: "1px",
+                padding: "5px 9px",
+                border: oos
+                  ? "1px solid rgba(255,0,0,0.2)"
+                  : "1px solid #ff0000",
+                color: oos ? "rgba(255,0,0,0.25)" : "#ff0000",
+                textDecoration: oos ? "line-through" : "none",
+                cursor: oos ? "not-allowed" : "pointer",
+                transition: "background 0.1s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!oos)
+                  e.currentTarget.style.background = "rgba(255,0,0,0.12)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
+            >
+              {s.size}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ProductCard({
+  product,
+  setSelectedProduct,
+  addToCart,
+  addingId,
+  setAddingId,
+}) {
+  const [showSizePicker, setShowSizePicker] = useState(false);
+
+  const totalStock =
+    product.sizes?.reduce((sum, s) => sum + s.countInStock, 0) || 0;
+  const isLowStock = totalStock > 0 && totalStock <= 5;
+  const isSoldOut = totalStock === 0;
+  const availableSizes = product.sizes?.filter((s) => s.countInStock > 0) || [];
+  const hasSingleSize = availableSizes.length === 1;
+  const image = product.images?.[0] || "/img/shirt3.png";
+
+  const handleAddClick = (e) => {
+    e.stopPropagation();
+    if (isSoldOut || addingId === product._id) return;
+    if (hasSingleSize) {
+      addToCart(product, 1, availableSizes[0].size);
+      setAddingId(product._id);
+      setTimeout(() => setAddingId(null), 1200);
     } else {
-      setCurrentImgIndex(0); 
+      setShowSizePicker((prev) => !prev);
     }
-    return () => clearInterval(interval);
-  }, [isHovered, imagesArray]);
+  };
+
+  const handleSizeSelect = (size) => {
+    setShowSizePicker(false);
+    addToCart(product, 1, size);
+    setAddingId(product._id);
+    setTimeout(() => setAddingId(null), 1200);
+  };
 
   return (
     <div
       className="product"
       key={product._id}
       onClick={() => setSelectedProduct(product._id)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      style={{ cursor: "pointer" }}
     >
-      <div className="product__img image-bounds">
-  
-        {/* Badges perfectly pinned to top-left with sharp corners */}
+      {/* Image */}
+      <div className="product__img" style={{ position: "relative" }}>
         {isSoldOut ? (
-          <div className="brutalist-badge">
-            sold out
-          </div>
+          <div className="low-stock-badge">sold out</div>
         ) : isLowStock ? (
-          <div className="brutalist-badge">
-            only few left
-          </div>
+          <div className="low-stock-badge">only few left</div>
         ) : null}
 
-        {/* Image Stack for Hover Fade */}
-        {imagesArray.map((img, index) => (
-          <img
-            key={index}
-            src={img}
-            alt={product.name}
-            style={{
-              position: index === 0 ? "relative" : "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              opacity: index === currentImgIndex ? (isSoldOut ? 0.4 : 1) : 0,
-              transition: "opacity 0.6s ease-in-out",
-              zIndex: index === currentImgIndex ? 2 : 1,
-              pointerEvents: "none"
-            }}
-          />
-        ))}
+        <img
+          src={image}
+          alt={product.name}
+          style={{
+            opacity: isSoldOut ? 0.35 : 1,
+            transition: "opacity 0.3s ease",
+          }}
+        />
       </div>
 
+      {/* Info row */}
       <div className="product__info">
         <div className="left">
-          <p className="product-title">{product.name}</p>
-          <span className="product-price">₹{product.price}</span>
+          <p>{product.name}</p>
+          <span>₹{product.price}</span>
         </div>
+
         <div
           className="right"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!isSoldOut && addingId !== product._id) {
-              addToCart(product, 1, product.sizes?.[0]?.size || "M");
-              setAddingId(product._id);
-              setTimeout(() => setAddingId(null), 1200);
-            }
-          }}
+          style={{ position: "relative" }}
+          onClick={(e) => e.stopPropagation()}
         >
-          {addingId === product._id ? (
-            <span className="icon-fade-enter" style={{ fontSize: "16px", color: "#ff0000" }}>✓</span>
-          ) : (
-            <img
-              src="/img/plus.png"
-              alt="add"
-              className="add-btn-img"
-              style={{ opacity: isSoldOut ? 0.3 : 1, transition: "opacity 0.3s ease" }}
+          <div
+            onClick={handleAddClick}
+            style={{ cursor: isSoldOut ? "not-allowed" : "pointer" }}
+          >
+            {addingId === product._id ? (
+              <span
+                style={{
+                  fontSize: "16px",
+                  color: "#ff0000",
+                  display: "block",
+                }}
+              >
+                ✓
+              </span>
+            ) : (
+              <img
+                src="/img/plus.png"
+                alt="add"
+                style={{
+                  opacity: isSoldOut ? 0.2 : 1,
+                  transition: "opacity 0.3s ease",
+                }}
+              />
+            )}
+          </div>
+
+          {showSizePicker && !isSoldOut && (
+            <SizePicker
+              product={product}
+              onSelect={handleSizeSelect}
+              onClose={() => setShowSizePicker(false)}
             />
           )}
         </div>
       </div>
+
       <div className="product__line"></div>
     </div>
   );
@@ -113,7 +204,7 @@ export default function Shop() {
     const loadProducts = async () => {
       try {
         const data = await productService.getAll();
-        setProducts(data.products); 
+        setProducts(data.products);
       } catch (error) {
         console.error("Failed to load products", error);
       } finally {
@@ -124,7 +215,11 @@ export default function Shop() {
   }, []);
 
   if (loading) {
-    return <div style={{ color: "#ff0000", padding: "2rem", textAlign: "center" }}>Loading equipment...</div>;
+    return (
+      <div style={{ color: "#ff0000", padding: "2rem" }}>
+        Loading equipment...
+      </div>
+    );
   }
 
   return (
